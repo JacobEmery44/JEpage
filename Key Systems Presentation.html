@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Key Systems — Iron &amp; Infrastructure · Presentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#0b0c0e;
+    --steel-900:#101316;
+    --steel-800:#171b1f;
+    --steel-700:#20242a;
+    --line:rgba(255,255,255,.10);
+    --line-strong:rgba(255,255,255,.18);
+    --fog:#99a0aa;
+    --steel-200:#d7dadf;
+    --white:#f3f4f5;
+    --forge:#e01e26;
+    --forge-deep:#b3141b;
+    --go:#34c06a;
+    --stop:#e2402c;
+    --display:'Anton',sans-serif;
+    --ui:'Barlow Condensed',sans-serif;
+    --body:'Barlow',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#070809;-webkit-font-smoothing:antialiased}
+  body{font-family:var(--body);color:var(--white);display:flex;flex-direction:column;align-items:center;
+    gap:26px;padding:40px 16px 90px}
+
+  /* ---- PAGE SHELL ---- */
+  .page{
+    width:11in;height:8.5in;position:relative;overflow:hidden;
+    background:var(--ink);color:var(--white);
+    box-shadow:0 18px 60px rgba(0,0,0,.6);
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  .frame{position:absolute;inset:0;padding:0.62in 0.7in 0.52in;display:flex;flex-direction:column}
+  .grid-bg{position:absolute;inset:0;z-index:0;opacity:.45;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:48px 48px;mask-image:radial-gradient(120% 95% at 50% 0%,#000,transparent 72%)}
+
+  /* topbar */
+  .topbar{display:flex;align-items:center;justify-content:space-between;
+    border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:26px;position:relative;z-index:2}
+  .topbar .tb-l{font-family:var(--mono);font-weight:700;color:var(--forge);font-size:11px;letter-spacing:.2em}
+  .topbar .tb-l b{color:var(--steel-200);font-family:var(--ui);font-weight:700;letter-spacing:.14em;margin-left:12px}
+  .topbar .tb-r{font-family:var(--ui);text-transform:uppercase;letter-spacing:.2em;font-size:10px;color:var(--fog)}
+
+  .eyebrow{font-family:var(--ui);text-transform:uppercase;letter-spacing:.26em;font-weight:600;
+    font-size:12px;color:var(--forge);display:inline-flex;align-items:center;gap:11px}
+  .eyebrow::before{content:"";width:28px;height:2px;background:var(--forge)}
+  .ptitle{font-family:var(--display);text-transform:uppercase;line-height:.94;letter-spacing:.005em;
+    font-size:46px;margin-top:12px}
+  .ptitle .q{color:var(--forge)}
+  .pintro{color:var(--steel-200);font-size:15px;max-width:64ch;margin-top:14px;line-height:1.5}
+  .pintro b{color:var(--white)}
+
+  .foot{position:absolute;left:0.7in;right:0.7in;bottom:0.42in;display:flex;align-items:center;
+    justify-content:space-between;border-top:1px solid var(--line);padding-top:12px;z-index:2}
+  .foot .fl{display:flex;align-items:center;gap:12px;font-family:var(--ui);text-transform:uppercase;
+    letter-spacing:.18em;font-size:9.5px;color:var(--fog)}
+  .foot .fl .je{font-family:var(--display);font-size:14px;letter-spacing:.04em;color:var(--white)}
+  .foot .fl .je em{color:var(--forge);font-style:normal}
+  .foot .fr{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--fog)}
+
+  .body{flex:1;position:relative;z-index:2;min-height:0}
+
+  /* ---- COVER / FINALE ---- */
+  .cover,.finale-pg{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .cover .crest img{height:1.55in;filter:drop-shadow(0 10px 30px rgba(0,0,0,.6))}
+  .cover .kshero{font-family:var(--display);text-transform:uppercase;line-height:.86;margin-top:24px}
+  .cover .kshero .k{font-size:108px;letter-spacing:.01em}
+  .cover .kshero .s{font-size:66px;color:var(--forge);letter-spacing:.14em;display:block;margin-top:4px}
+  .cover .tag{font-family:var(--ui);text-transform:uppercase;letter-spacing:.24em;font-weight:700;
+    font-size:18px;margin-top:26px;color:var(--steel-200)}
+  .cover .tag b{color:var(--forge)}
+  .cover .org{font-family:var(--ui);text-transform:uppercase;letter-spacing:.2em;font-size:12px;
+    color:var(--fog);margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+  .hazard{position:absolute;left:0;right:0;height:12px;
+    background:repeating-linear-gradient(45deg,var(--forge) 0 20px,#0b0c0e 20px 40px)}
+  .hazard.top{top:0}.hazard.bot{bottom:0}
+
+  /* ---- PREMISE ---- */
+  .premise{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;height:100%;align-items:center}
+  .premise .pcol{display:flex;flex-direction:column;justify-content:center}
+  .premise h2{font-family:var(--display);text-transform:uppercase;font-size:42px;line-height:.98}
+  .premise h2 .q{color:var(--forge)}
+  .premise p{color:var(--steel-200);font-size:16px;margin-top:18px;line-height:1.55;max-width:42ch}
+  .premise p b{color:var(--white)}
+  .whocard{border:1px solid var(--line);background:var(--steel-800)}
+  .whocard .wh{font-family:var(--ui);text-transform:uppercase;letter-spacing:.18em;font-weight:700;
+    font-size:12px;color:var(--forge);padding:18px 24px 0}
+  .whocard ul{list-style:none;padding:14px 24px 22px}
+  .whocard li{display:flex;gap:13px;padding:12px 0;border-top:1px solid var(--line);color:var(--steel-200);font-size:14px}
+  .whocard li:first-child{border-top:none}
+  .whocard li .m{font-family:var(--display);color:var(--forge);font-size:16px;flex:none}
+
+  /* ---- FRAMEWORK ACRONYM ---- */
+  .acro{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);height:100%}
+  .acol{padding:26px 30px;display:flex;flex-direction:column}
+  .acol.key{background:var(--steel-800);border-right:1px solid var(--line)}
+  .acol .ch{font-family:var(--ui);text-transform:uppercase;letter-spacing:.16em;font-weight:700;font-size:12px;color:var(--fog)}
+  .acol .cw{font-family:var(--display);text-transform:uppercase;font-size:58px;line-height:.86;color:var(--forge);margin:4px 0 6px}
+  .acol .csub{color:var(--fog);font-size:12.5px;margin-bottom:12px;max-width:36ch;line-height:1.45}
+  .acol .csub b{color:var(--steel-200)}
+  .arow{display:grid;grid-template-columns:42px 1fr;gap:14px;align-items:baseline;padding:8px 0;border-top:1px solid var(--line)}
+  .arow .lt{font-family:var(--display);font-size:26px;color:var(--forge);text-align:center;line-height:1}
+  .arow .wd{font-family:var(--ui);text-transform:uppercase;font-weight:700;font-size:16px;letter-spacing:.03em}
+  .arow .wd small{display:block;font-family:var(--body);text-transform:none;font-weight:400;letter-spacing:0;
+    font-size:11.5px;color:var(--fog);margin-top:1px}
+  .acol.sys .arow{padding:6.5px 0}
+
+  /* ---- STANDARDS ---- */
+  .sgcreed{font-family:var(--display);text-transform:uppercase;font-size:23px;line-height:1.04;
+    letter-spacing:.01em;color:var(--white);max-width:30ch;margin-bottom:6px}
+  .sgcreed .q{color:var(--forge)}
+  .sgrid{display:flex;flex-direction:column;border-top:1px solid var(--line);justify-content:center}
+  .srow{display:grid;grid-template-columns:92px 1fr;gap:30px;align-items:center;padding:17px 4px;
+    border-bottom:1px solid var(--line)}
+  .srow .sn{font-family:var(--display);font-size:62px;line-height:1;color:transparent;
+    -webkit-text-stroke:1.6px var(--forge);text-align:center}
+  .srow .st4{display:flex;align-items:baseline;gap:20px;flex-wrap:wrap}
+  .srow h4{font-family:var(--display);text-transform:uppercase;font-size:36px;line-height:1;letter-spacing:.01em}
+  .srow p{font-family:var(--ui);text-transform:uppercase;letter-spacing:.08em;font-size:14px;color:var(--fog)}
+
+  /* ---- MINDSET ---- */
+  .vv{display:grid;grid-template-columns:1fr 56px 1fr;gap:0;align-items:stretch;height:74%}
+  .vvq{font-family:var(--display);text-transform:uppercase;font-size:30px;line-height:1;margin-bottom:18px}
+  .vvq .q{color:var(--forge)}
+  .vvcard{border:1px solid var(--line);padding:26px 28px;background:var(--steel-800)}
+  .vvcard .tag{font-family:var(--display);text-transform:uppercase;font-size:40px;line-height:1}
+  .vvcard.victim .tag{color:transparent;-webkit-text-stroke:1.4px var(--fog)}
+  .vvcard.victory{background:var(--ink);border-color:var(--forge)}
+  .vvcard.victory .tag{color:var(--forge)}
+  .vvcard ul{list-style:none;margin-top:18px;display:flex;flex-direction:column;gap:11px}
+  .vvcard li{display:flex;gap:12px;color:var(--steel-200);font-size:13.5px}
+  .vvcard li .m{font-family:var(--mono);font-weight:700;flex:none;width:16px}
+  .vvcard.victim li .m{color:var(--stop)}.vvcard.victory li .m{color:var(--go)}
+  .vvmid{display:grid;place-items:center}
+  .vvmid span{width:44px;height:44px;border:1px solid var(--line-strong);border-radius:50%;display:grid;place-items:center;
+    font-family:var(--ui);font-weight:700;font-size:12px;color:var(--forge)}
+  .mnote{margin-top:18px;font-family:var(--ui);text-transform:uppercase;letter-spacing:.14em;font-size:13px;color:var(--fog)}
+  .mnote b{color:var(--white)}
+
+  /* ---- HIGHWAY LEVELS ---- */
+  .levels{display:flex;flex-direction:column;gap:11px;height:100%;justify-content:center}
+  .lvl{display:grid;grid-template-columns:84px 1fr auto;gap:24px;align-items:center;
+    border:1px solid var(--line);background:var(--steel-800);padding:18px 26px;position:relative;overflow:hidden}
+  .lvl::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--forge)}
+  .lvl:nth-child(1)::before{opacity:.45}.lvl:nth-child(2)::before{opacity:.65}
+  .lvl:nth-child(3)::before{opacity:.85}.lvl:nth-child(4)::before{opacity:1}
+  .lvl .ln{font-family:var(--display);font-size:48px;line-height:.8;color:transparent;-webkit-text-stroke:1.4px var(--forge)}
+  .lvl:nth-child(4) .ln{color:var(--forge);-webkit-text-stroke:0}
+  .lvl h4{font-family:var(--ui);text-transform:uppercase;font-size:23px;font-weight:700;line-height:1}
+  .lvl p{color:var(--fog);font-size:13px;margin-top:4px;max-width:60ch}
+  .lvl .lm{text-align:right;font-family:var(--ui);text-transform:uppercase;min-width:120px}
+  .lvl .lm .t{font-size:12px;letter-spacing:.14em;color:var(--forge);font-weight:700}
+  .lvl .lm .d{font-size:11px;letter-spacing:.14em;color:var(--fog);margin-top:6px}
+
+  /* ---- TWO-COL DETAIL (levels 1-3) ---- */
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:22px;height:100%;align-items:stretch}
+  .dcard{border:1px solid var(--line);background:var(--steel-800);padding:26px 28px;display:flex;flex-direction:column}
+  .dcard .dh{font-family:var(--ui);text-transform:uppercase;letter-spacing:.14em;font-weight:700;font-size:13px;color:var(--forge)}
+  .dcard .ds{font-family:var(--ui);text-transform:uppercase;letter-spacing:.12em;font-size:11px;color:var(--fog);margin-top:3px}
+  .dcard .dbig{font-family:var(--display);text-transform:uppercase;font-size:30px;line-height:1;margin:14px 0 10px}
+  .dcard p{color:var(--steel-200);font-size:14px;line-height:1.5}
+  .metrics{display:flex;flex-direction:column;margin-top:8px}
+  .metrics .mr{display:flex;justify-content:space-between;padding:11px 0;border-top:1px solid var(--line);
+    font-family:var(--ui);text-transform:uppercase;letter-spacing:.06em;font-size:14px}
+  .metrics .mr:first-child{border-top:none}
+  .metrics .mr .v{color:var(--forge);font-weight:700}
+  .bignote{margin-top:auto;border-top:1px dashed var(--line-strong);padding-top:14px;color:var(--steel-200);font-size:13.5px;line-height:1.5}
+  .bignote b{color:var(--white)}
+  .quote-line{font-family:var(--body);font-style:italic;color:var(--steel-200);font-size:16px;line-height:1.45;
+    border-left:3px solid var(--forge);padding-left:18px;margin-bottom:18px}
+
+  /* quarter grid for L3 */
+  .qgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+  .qcell{border:1px solid var(--line);padding:14px 16px;background:var(--ink)}
+  .qcell .qn{font-family:var(--display);font-size:22px;color:var(--forge)}
+  .qcell .qt{font-family:var(--ui);text-transform:uppercase;letter-spacing:.1em;font-size:11px;color:var(--fog);margin-top:3px}
+
+  /* ---- 4 C's ---- */
+  .cs{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);height:100%}
+  .cc{padding:24px 22px;border-right:1px solid var(--line);display:flex;flex-direction:column}
+  .cs .cc:last-child{border-right:none}
+  .cc .ico{width:40px;height:40px;border:1.5px solid var(--forge);color:var(--forge);display:grid;place-items:center;margin-bottom:18px}
+  .cc .ico svg{width:21px;height:21px}
+  .cc h4{font-family:var(--display);text-transform:uppercase;font-size:26px;line-height:.95}
+  .cc .free{font-family:var(--ui);text-transform:uppercase;letter-spacing:.12em;font-size:11px;color:var(--forge);font-weight:700;margin:6px 0 10px}
+  .cc p{color:var(--fog);font-size:13px;line-height:1.45}
+
+  /* ---- FLOW (execution arch) ---- */
+  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);height:84%}
+  .fstep{padding:24px 22px;border-right:1px solid var(--line);position:relative;display:flex;flex-direction:column}
+  .flow .fstep:last-child{border-right:none}
+  .fstep .fn{font-family:var(--mono);font-weight:700;color:var(--forge);font-size:12px;letter-spacing:.12em}
+  .fstep h4{font-family:var(--ui);text-transform:uppercase;font-size:21px;font-weight:700;margin:14px 0 3px}
+  .fstep .fs{font-family:var(--ui);text-transform:uppercase;letter-spacing:.12em;font-size:11px;color:var(--forge);margin-bottom:10px}
+  .fstep p{color:var(--fog);font-size:13px;line-height:1.45}
+  .fstep .an{position:absolute;right:16px;top:20px;font-family:var(--display);font-size:30px;color:var(--steel-700)}
+  .flowscale{display:flex;justify-content:space-between;margin-top:14px;font-family:var(--ui);
+    text-transform:uppercase;letter-spacing:.14em;font-size:11px;color:var(--fog)}
+  .flowscale b{color:var(--forge)}
+
+  /* ---- AUDIT / SAD steps ---- */
+  .steps4{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line)}
+  .st{padding:22px 22px;border-right:1px solid var(--line)}
+  .steps4 .st:last-child{border-right:none}
+  .st .s{font-family:var(--mono);font-weight:700;color:var(--forge);font-size:11px;letter-spacing:.14em}
+  .st h4{font-family:var(--ui);text-transform:uppercase;font-size:19px;font-weight:700;margin:12px 0 7px;letter-spacing:.03em}
+  .st p{color:var(--fog);font-size:12.5px;line-height:1.45}
+  .sad3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .sc{border:1px solid var(--line);background:var(--steel-800);padding:22px 24px}
+  .sc .n{font-family:var(--display);font-size:38px;color:var(--forge);line-height:.9}
+  .sc h4{font-family:var(--ui);text-transform:uppercase;font-size:21px;font-weight:700;margin:8px 0 7px;letter-spacing:.03em}
+  .sc p{color:var(--fog);font-size:13px;line-height:1.45}
+  .dri{margin-top:16px;border:1px solid var(--forge);background:linear-gradient(180deg,rgba(224,30,38,.10),transparent);
+    padding:20px 26px;display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center}
+  .dri .big{font-family:var(--display);font-size:44px;color:var(--forge);line-height:.85}
+  .dri .big small{display:block;font-family:var(--ui);font-size:11px;letter-spacing:.14em;color:var(--fog);margin-top:6px;text-transform:uppercase}
+  .dri p{font-size:14px;color:var(--steel-200);max-width:58ch;line-height:1.5}
+  .dri p b{color:var(--white)}
+
+  /* ---- BLOCKERS ---- */
+  .blk3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;height:78%}
+  .bk{border:1px solid var(--line);background:var(--steel-800);padding:24px 26px;position:relative}
+  .bk .x{position:absolute;right:20px;top:22px;color:var(--stop);font-family:var(--mono);font-weight:700;font-size:18px}
+  .bk .n{font-family:var(--mono);font-weight:700;color:var(--fog);font-size:12px;letter-spacing:.14em}
+  .bk h4{font-family:var(--display);text-transform:uppercase;font-size:24px;line-height:1;margin:12px 0 11px;max-width:13ch}
+  .bk h4 .q{color:var(--forge)}
+  .bk p{color:var(--fog);font-size:13px;line-height:1.45}
+
+  /* ---- TRIANGLE ---- */
+  .triwrap{display:grid;grid-template-columns:.8fr 1.2fr;gap:44px;align-items:center;height:100%}
+  .tri{position:relative;aspect-ratio:1/.86}
+  .tri svg{width:100%;height:100%;overflow:visible}
+  .tlabel{position:absolute;font-family:var(--display);text-transform:uppercase;font-size:17px;color:var(--white)}
+  .tlabel.top{top:-3%;left:50%;transform:translateX(-50%);color:var(--forge)}
+  .tlabel.bl{bottom:4%;left:-3%}.tlabel.br{bottom:4%;right:-3%}
+  .tcenter{position:absolute;top:54%;left:50%;transform:translate(-50%,-50%);text-align:center;font-family:var(--ui);text-transform:uppercase}
+  .tcenter .a{font-family:var(--display);font-size:18px}.tcenter .b{font-size:10px;letter-spacing:.16em;color:var(--fog);margin-top:3px}
+  .tli{padding:16px 0;border-top:1px solid var(--line)}
+  .tli:first-child{border-top:none}
+  .tli h4{font-family:var(--ui);text-transform:uppercase;font-size:18px;font-weight:700;letter-spacing:.04em;color:var(--forge)}
+  .tli p{color:var(--fog);font-size:13px;margin-top:3px;line-height:1.45}
+  .trinote{margin-top:14px;color:var(--steel-200);font-size:14px;line-height:1.5}
+  .trinote b{color:var(--white)}
+
+  /* ---- ROADMAP ---- */
+  .rmap{display:flex;flex-direction:column;gap:14px;height:100%;justify-content:center}
+  .rrow{display:grid;grid-template-columns:160px 1fr;gap:22px;align-items:center;border:1px solid var(--line);
+    background:var(--steel-800);padding:16px 24px}
+  .rrow .rk{font-family:var(--ui);text-transform:uppercase;letter-spacing:.12em;font-weight:700;font-size:13px;color:var(--forge)}
+  .rrow .rv{font-family:var(--ui);text-transform:uppercase;letter-spacing:.04em;font-size:15px;color:var(--steel-200)}
+  .rrow .rv b{color:var(--white);font-weight:700}
+  .rrow.dest{border-color:var(--forge);background:linear-gradient(90deg,rgba(224,30,38,.10),transparent)}
+  .rseq{text-align:center;margin-top:6px;font-family:var(--ui);text-transform:uppercase;letter-spacing:.2em;
+    font-size:14px;color:var(--fog)}
+  .rseq b{color:var(--forge)}
+
+  /* finale */
+  .finale-pg h2{font-family:var(--display);text-transform:uppercase;font-size:84px;line-height:.92}
+  .finale-pg h2 .o{color:transparent;-webkit-text-stroke:2px var(--forge)}
+  .finale-pg .fsub{font-family:var(--ui);text-transform:uppercase;letter-spacing:.22em;font-weight:700;font-size:15px;color:var(--forge);margin-top:22px}
+  .finale-pg p{color:var(--steel-200);font-size:17px;margin-top:18px;max-width:40ch;line-height:1.5}
+  .finale-pg .org{font-family:var(--ui);text-transform:uppercase;letter-spacing:.2em;font-size:12px;color:var(--fog);
+    margin-top:28px;border-top:1px solid var(--line);padding-top:16px}
+
+  /* print toolbar */
+  .toolbar{position:fixed;right:18px;bottom:18px;z-index:9999;display:flex;gap:10px}
+  .toolbar button{font-family:var(--ui);text-transform:uppercase;letter-spacing:.1em;font-weight:700;font-size:13px;
+    background:var(--forge);color:#120a05;border:none;padding:13px 22px;cursor:pointer;
+    clip-path:polygon(0 0,100% 0,100% 100%,11px 100%,0 calc(100% - 11px))}
+  .toolbar button:hover{background:var(--white)}
+
+  @media print{
+    @page{size:11in 8.5in;margin:0}
+    html,body{background:#fff}
+    body{padding:0;gap:0}
+    .page{box-shadow:none;page-break-after:always;break-after:page}
+    .page:last-child{page-break-after:auto}
+    .toolbar{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- 01 COVER -->
+<section class="page" data-screen-label="Cover">
+  <div class="hazard top"></div>
+  <div class="grid-bg"></div>
+  <div class="frame cover">
+    <div class="crest"><img src="assets/ii-logo.png" alt="Iron &amp; Infrastructure" /></div>
+    <div class="kshero"><span class="k">KEY</span><span class="s">SYSTEMS</span></div>
+    <div class="tag"><b>Simple Scales.</b> Complex Fails.</div>
+    <div class="org">Iron &amp; Infrastructure LLC &nbsp;·&nbsp; Jacob Emery, Owner</div>
+  </div>
+  <div class="hazard bot"></div>
+</section>
+
+<!-- 02 PREMISE -->
+<section class="page" data-screen-label="Premise">
+  <div class="frame">
+    <div class="topbar"><div class="tb-l">00 <b>THE PREMISE</b></div><div class="tb-r">Iron &amp; Infrastructure · Key Systems</div></div>
+    <div class="body">
+      <div class="premise">
+        <div class="pcol">
+          <span class="eyebrow">Why This Exists</span>
+          <h2>Greatness isn't given.<br /><span class="q">It's built</span> — on a system.</h2>
+          <p>Most people don't have a motivation problem. They have a <b>sequencing</b> problem — random effort, no blueprint, no order of operations.</p>
+          <p>Key Systems is the highway. It tells you <b>what to build, in what order,</b> so your work finally compounds instead of scattering.</p>
+        </div>
+        <div class="whocard">
+          <div class="wh">Built for you if</div>
+          <ul>
+            <li><span class="m">›</span> You're a business leader lacking clarity and confidence</li>
+            <li><span class="m">›</span> You're working hard but spinning your wheels</li>
+            <li><span class="m">›</span> You want freedom of time, money &amp; purpose — not just revenue</li>
+            <li><span class="m">›</span> You're ready to take ownership and do the work</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="foot"><div class="fl"><span class="je">J<em>·</em>E</span> IRON &amp; INFRASTRUCTURE LLC · KEY SYSTEMS</div><div class="fr">02 / 15</div></div>
+  </div>
+</section>
+
+<!-- 03 FRAMEWORK -->
+<section class="page" data-screen-label="Framework">
+  <div class="frame">
+    <div class="topbar"><div class="tb-l">01 <b>THE FRAMEWORK</b></div><div class="tb-r">What It Stands For</div></div>
+    <div class="body">
+      <div class="acro">
+        <div class="acol key">
+          <div class="ch">The Foundation</div>
+          <div class="cw">KEY</div>
+          <div class="csub">The three inputs you control. Get these right and everything downstream compounds.</div>
+          <div class="arow"><div class="lt">K</div><div class="wd">Knowledge<small>Know the game before you play it.</small></div></div>
+          <div class="arow"><div class="lt">E</div><div class="wd">Execution<small>Ideas don't scale. Execution scales.</small></div></div>
+          <div class="arow"><div class="lt">Y</div><div class="wd">You<small>It starts and ends with the operator.</small></div></div>
+        </div>
+        <div class="acol sys">
+          <div class="ch">The Payoff</div>
+          <div class="cw">SYSTEMS</div>
+          <div class="csub"><b>You Save Yourself Some Time, Energy, Money &amp; Stress.</b></div>
+          <div class="arow"><div class="lt">S</div><div class="wd">Save</div></div>
+          <div class="arow"><div class="lt">Y</div><div class="wd">Yourself</div></div>
+          <div class="arow"><div class="lt">S</div><div class="wd">Some</div></div>
+          <div class="arow"><div class="lt">T</div><div class="wd">Time</div></div>
+          <div class="arow"><div class="lt">E</div><div class="wd">Energy</div></div>
+          <div class="arow"><div class="lt">M</div><div class="wd">Money</div></div>
+          <div class="arow"><div class="lt">S</div><div class="wd">Stress</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="foot"><div class="fl"><span class="je">J<em>·</em>E</span> IRON &amp; INFRASTRUCTURE LLC · KEY SYSTEMS</div><div class="fr">03 / 15</div></div>
+  </div>
+</section>
+
+<!-- 04 STANDARDS OF GREATNESS -->
+<section class="page" data-screen-label="Standards of Greatness">
+  <div class="frame">
+    <div class="topbar"><div class="tb-l">02 <b>STANDARDS OF GREATNESS</b></div><div class="tb-r">The Daily Non-Negotiables</div></div>
+    <div class="body" style="display:flex;flex-direction:column">
+      <p class="sgcreed" style="margin-bottom:14px">We don't rise to the level of our goals. We <span class="q">fall to the level of our systems.</span></p>
+      <div class="sgrid" style="flex:1">
+        <div class="srow"><div class="sn">1</div><div class="st4"><h4>No Snooze</h4><p>Forget feelings, follow the plan</p></div></div>
+        <div class="srow"><div class="sn">2</div><div class="st4"><h4>Physical Output</h4><p>Consistency over intensity</p></div></div>
+        <div class="srow"><div class="sn">3</div><div class="st4"><h4>Mental Input</h4><p>Quality in, quality out</p></div></div>
+        <div class="srow"><div class="sn">4</div><div class="st4"><h4>Track &amp; Attack</h4><p>Measure your progress · intentional attention</p></div></div>
+        <div class="srow"><div class="sn">5</div><div class="st4"><h4>Gratitude &amp; Preparation</h4><p>Win or learn, never lose · fail to prepare, prepare to fail</p></div></div>
+      </div>
+    </div>
+    <div class="foot"><div class="fl"><span class="je">J<em>·</em>E</span> IRON &amp; INFRASTRUCTURE LLC · KEY SYSTEMS</div><div class="fr">04 / 15</div></div>
+  </div>
+</section>
+
+<!-- 05 MINDSET -->
+<section class="page" data-screen-label="Mindset">
+  <div class="frame">
+    <div class="topbar"><div class="tb-l">03 <b>THE MINDSET FOUNDATION</b></div><div class="tb-r">Victory or Victim</div></div>
+    <div class="body" style="display:flex;flex-direction:column">
+      <p class="vvq">"Every morning you wake up, <span class="q">you make a choice.</span>"</p>
+      <div class="vv">
+        <div class="vvcard victim">
+          <div class="tag">Victim</div>
+          <ul>
+            <li><span class="m">✕</span> Waits for conditions to be perfect</li>
+            <li><span class="m">✕</span> Blames the market, the team, the timing</li>
+            <li><span class="m">✕</span> Reacts to whatever the day throws</li>
+            <li><span class="m">✕</span> Trades ownership for excuses</li>
+          </ul>
+        </div>
+        <div class="vvmid"><span>OR</span></div>
+        <div class="vvcard victory">
+          <div class="tag">Victory</div>
+          <ul>
+            <li><span class="m">✓</span> Takes ownership of the outcome</li>
+            <li><span class="m">✓</span> Builds the system, then runs it</li>
+            <li><span class="m">✓</span> Decides the day before it decides them</li>
+            <li><span class="m">✓</span> Plays offense on purpose</li>
+          </ul>
+        </div>
+      </div>
+      <p class="mnote">Your mindset is the foundation of everything. <b>There is no middle ground.</b></p>
+    </div>
+    <div class="foot"><div class="fl"><span class="je">J<em>·</em>E</span> IRON &amp; INFRASTRUCTURE LLC · KEY SYSTEMS</div><div class="fr">05 / 15</div></div>
+  </div>
+</section>
+
+<!-- 06 HIGHWAY OVERVIEW -->
+<section class="page" data-screen-label="Highway Overview">
+  <div class="frame">
+    <div class="topbar"><div class="tb-l">04 <b>THE HIGHWAY TO SUCCESS</b></div><div class="tb-r">Your Roadmap Overview</div></div>
+    <div class="body">
+      <div class="levels">
+        <div class="lvl"><div class="ln">01</div><div><h4>Mountain Top Vision</h4><p>The summit you're building toward — felt and measured.</p></div><div class="lm"><div class="t">The Summit</div><div class="d">5–10+ Years</div></div></div>
+        <div class="lvl"><div class="ln">02</div><div><h4>3-Year Checkpoint</h4><p>Where the vision meets reality — the numbers and the new identity.</p></div><div class="lm"><div class="t">The Milestone</div><div class="d">3 Years</div></div></div>
+        <div class="lvl"><div class="ln">03</div><div><h4>1-Year Goals · Quarterly F:E</h4><p>Annual goals broken into focused quarterly execution sprints.</p></div><div class="lm"><div class="t">Execution Lane</div><div class="d">Quarterly</div></div></div>
+        <div class="lvl"><div class="ln">04</div><div><h4>The 4 C's to Freedom</h4><p>The destination. The framework is the vehicle — the 4 C's are where it takes you.</p></div><div class="lm"><div class="t">Destination</div><div class="d">The Payoff</div></div></div>
+      </div>
+    </div>
+    <div class="foot"><div class="fl"><span class="je">J<em>·</em>E</span> IRON &amp; INFRASTRUCTURE LLC · KEY SYSTEMS</div><div class="fr">06 / 15</div></div>
+  </div>
+</section>
+
+<!-- 07 LEVEL 1 -->
+<section class="page" data-screen-label="Level 1">
+  <div class="frame">
+    <div class="topbar"><div class="tb-l">LEVEL 1 <b>MOUNTAIN TOP VISION</b></div><div class="tb-r">The Summit · 5–10+ Years</div></div>
+    <div class="body" style="display:flex;flex-direction:column">
+      <p class="quote-line">"We cannot create a better future until we can create a better past."</p>
+      <div class="duo" style="flex:1">
+        <div class="dcard">
+          <div class="dh">Your Story</div><div class="ds">Feelings</div>
+          <div class="dbig">How does it feel?</div>
+          <p>The emotional vision of the life you're building toward. The "why" you can feel in your chest before you can measure it.</p>
+        </div>
+        <div class="dcard">
+          <div class="dh">Your Scorecard</div><div class="ds">Facts</div>
+          <div class="dbig">What does it measure?</div>
+          <div class="metrics">
+            <div class="mr"><span>Net Worth</span><span class="v">Target</span></div>
+            <div class="mr"><span>Revenue &amp; Profit</span><span class="v">Target</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="bignote">The vision must be both <b>felt AND measured.</b> Story without scorecard is a daydream. Scorecard without story is a spreadsheet. <b>You need both.</b></p>
+    </div>
+    <div class="foot"><div class="fl"><span class="je">J<em>·</em>E</span> IRON &amp; INFRASTRUCTURE LLC · KEY SYSTEMS</div><div class="fr">07 / 15</div></div>
+  </div>
+</section>
+
+<!-- 08 LEVEL 4 -->
+<section class="page" data-screen-label="Level 4">
+  <div class="frame">
+    <div class="topbar"><div class="tb-l">LEVEL 4 <b>THE 4 C'S TO FREEDOM</b></div><div class="tb-r">The Destination</div></div>
+    <div class="body" style="display:flex;flex-direction:column">
+      <div class="cs" style="flex:1">
+        <div class="cc"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h4>Clock</h4><div class="free">Time Freedom</div><p>You own your calendar. Your calendar doesn't own you.</p></div>
+        <div class="cc"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><path d="M16 7.5c0-1.7-1.8-2.5-4-2.5s-4 .8-4 2.5S9.8 10 12 10s4 .8 4 2.5S14.2 15 12 15s-4-.8-4-2.5"/></svg></div><h4>Capital</h4><div class="free">Financial Freedom</div><p>Money works for you — not the other way around.</p></div>
+        <div class="cc"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M15.5 14c2.5 0 5 1.8 5 5"/></svg></div><h4>Community</h4><div class="free">Relationships</div><p>You're surrounded by people who elevate you.</p></div>
+        <div class="cc"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg></div><h4>Calling</h4><div class="free">Purpose &amp; Mission</div><p>You wake up on fire for what you do, every single day.</p></div>
+      </div>
+      <p class="bignote" style="border:none;border-top:1px solid var(--line);text-align:center">The framework is the <b>vehicle.</b> The 4 C's are the <b>destination.</b></p>
+    </div>
+    <div class="foot"><div class="fl"><span class="je">J<em>·</em>E</span> IRON &amp; INFRASTRUCTURE LLC · KEY SYSTEMS</div><div class="fr">08 / 15</div></div>
+  </div>
+</section>
+
+<!-- 11 EXECUTION ARCHITECTURE -->
+<section class="page" data-screen-label="Execution Architecture">
+  <div class="frame">
+    <div class="topbar"><div class="tb-l">05 <b>EXECUTION ARCHITECTURE</b></div><div class="tb-r">From Blueprint To Daily Plan</div></div>
+    <div class="body" style="display:flex;flex-direction:column">
+      <div class="flow">
+        <div class="fstep"><span class="an">01</span><div class="fn">MODEL</div><h4>Blueprint</h4><div class="fs">30,000-Foot View</div><p>The big-picture design of what you're building.</p></div>
+        <div class="fstep"><span class="an">02</span><div class="fn">SYSTEMS</div><h4>Infrastructure</h4><div class="fs">The Support</div><p>The tools, platforms &amp; structures that hold the model up.</p></div>
+        <div class="fstep"><span class="an">03</span><div class="fn">PROCESS</div><h4>Steps</h4><div class="fs">Repeatable</div><p>The step-by-step sequence. Documented so anyone can follow it.</p></div>
+        <div class="fstep"><span class="an">04</span><div class="fn">PLAYBOOK</div><h4>Daily Plan</h4><div class="fs">What You Do Today</div><p>The daily execution guide — for when things don't go perfectly.</p></div>
+      </div>
+      <div class="flowscale"><span><b>High altitude</b> · the vision</span><span>the daily move · <b>ground level</b></span></div>
+    </div>
+    <div class="foot"><div class="fl"><span class="je">J<em>·</em>E</span> IRON &amp; INFRASTRUCTURE LLC · KEY SYSTEMS</div><div class="fr">09 / 15</div></div>
+  </div>
+</section>
+
+<!-- 12 ENERGY & TIME AUDIT -->
+<section class="page" data-screen-label="Energy Audit">
+  <div class="frame">
+    <div class="topbar"><div class="tb-l">06 <b>THE ENERGY &amp; TIME AUDIT</b></div><div class="tb-r">Stop Bleeding Time On What Doesn't Matter</div></div>
+    <div class="body" style="display:flex;flex-direction:column;justify-content:center">
+      <div class="steps4">
+        <div class="st"><div class="s">STEP 01</div><h4>Pain</h4><p>Identify your pain points. Where are you stuck? What drains you?</p></div>
+        <div class="st"><div class="s">STEP 02</div><h4>Audit</h4><p>Audit your energy and time. Where is it actually going?</p></div>
+        <div class="st"><div class="s">STEP 03</div><h4>Fill</h4><p>Fill your calendar with high-value activities only.</p></div>
+        <div class="st"><div class="s">STEP 04</div><h4>Transfer</h4><p>Clear delegation. Hand off everything that isn't your highest &amp; best use.</p></div>
+      </div>
+    </div>
+    <div class="foot"><div class="fl"><span class="je">J<em>·</em>E</span> IRON &amp; INFRASTRUCTURE LLC · KEY SYSTEMS</div><div class="fr">10 / 15</div></div>
+  </div>
+</section>
+
+<!-- 13 SAD -->
+<section class="page" data-screen-label="Systemize Automate Delegate">
+  <div class="frame">
+    <div class="topbar"><div class="tb-l">07 <b>SYSTEMIZE · AUTOMATE · DELEGATE</b></div><div class="tb-r">Leverage, Not Labor</div></div>
+    <div class="body" style="display:flex;flex-direction:column;justify-content:center">
+      <div class="sad3">
+        <div class="sc"><div class="n">01</div><h4>Systemize</h4><p>Document it. If it's in your head, it doesn't exist. Write it down, map it out, make it repeatable.</p></div>
+        <div class="sc"><div class="n">02</div><h4>Automate</h4><p>Use technology. If a machine can do it, a machine should. Remove yourself from the loop.</p></div>
+        <div class="sc"><div class="n">03</div><h4>Delegate</h4><p>Hand it to a human — but not just any handoff. Delegate = Ownership + Outcome.</p></div>
+      </div>
+      <div class="dri">
+        <div class="big">D.R.I.<small>Directly Responsible Individual</small></div>
+        <p>Every task, every project, every outcome has <b>one person who owns it.</b> Not a committee. Not "the team." One name. One owner.</p>
+      </div>
+    </div>
+    <div class="foot"><div class="fl"><span class="je">J<em>·</em>E</span> IRON &amp; INFRASTRUCTURE LLC · KEY SYSTEMS</div><div class="fr">11 / 15</div></div>
+  </div>
+</section>
+
+<!-- 14 BELIEF BLOCKERS -->
+<section class="page" data-screen-label="Belief Blockers">
+  <div class="frame">
+    <div class="topbar"><div class="tb-l">08 <b>THE 3 BELIEF BLOCKERS</b></div><div class="tb-r">The Lies Entrepreneurs Tell Themselves</div></div>
+    <div class="body" style="display:flex;flex-direction:column;justify-content:center">
+      <div class="blk3">
+        <div class="bk"><span class="x">✕</span><div class="n">LIE 01</div><h4>"I'm <span class="q">special</span>"</h4><p>You think your business is beyond comparison. Reality: most of what you do mirrors common business loops. Systems already exist for much of it.</p></div>
+        <div class="bk"><span class="x">✕</span><div class="n">LIE 02</div><h4>"They'll <span class="q">mess it up</span>"</h4><p>Fear of delegating keeps you doing everything. Maybe true now — but without training you stay stuck. Holding on costs more than letting go.</p></div>
+        <div class="bk"><span class="x">✕</span><div class="n">LIE 03</div><h4>"I can't <span class="q">build a system</span>"</h4><p>You built the business — you can document the process. Stop lying to yourself.</p></div>
+      </div>
+    </div>
+    <div class="foot"><div class="fl"><span class="je">J<em>·</em>E</span> IRON &amp; INFRASTRUCTURE LLC · KEY SYSTEMS</div><div class="fr">12 / 15</div></div>
+  </div>
+</section>
+
+<!-- 15 TRIANGLE -->
+<section class="page" data-screen-label="Stable Triangle">
+  <div class="frame">
+    <div class="topbar"><div class="tb-l">09 <b>THE STABLE BUSINESS TRIANGLE</b></div><div class="tb-r">Three Legs · Weaken One, It Collapses</div></div>
+    <div class="body">
+      <div class="triwrap">
+        <div class="tri">
+          <svg viewBox="0 0 100 88" fill="none"><polygon points="50,6 94,82 6,82" stroke="var(--forge)" stroke-width="1.1"/><polygon points="50,6 94,82 6,82" fill="rgba(224,30,38,.06)"/></svg>
+          <div class="tlabel top">Pricing</div>
+          <div class="tlabel bl">Planning</div>
+          <div class="tlabel br">Product</div>
+          <div class="tcenter"><div class="a">Stable</div><div class="b">Business</div></div>
+        </div>
+        <div>
+          <div class="tli"><h4>Pricing</h4><p>What you charge and how. Get this wrong and nothing else matters.</p></div>
+          <div class="tli"><h4>Planning</h4><p>Strategic and operational planning — the roadmap that keeps you on course.</p></div>
+          <div class="tli"><h4>Product</h4><p>What you deliver. The thing that creates value — the foundation everything sits on.</p></div>
+          <p class="trinote">Most struggling businesses have a <b>product</b> problem they think is a <b>pricing</b> problem. <b>Fix the triangle.</b></p>
+        </div>
+      </div>
+    </div>
+    <div class="foot"><div class="fl"><span class="je">J<em>·</em>E</span> IRON &amp; INFRASTRUCTURE LLC · KEY SYSTEMS</div><div class="fr">13 / 15</div></div>
+  </div>
+</section>
+
+<!-- 16 COMPLETE ROADMAP -->
+<section class="page" data-screen-label="Complete Roadmap">
+  <div class="frame">
+    <div class="topbar"><div class="tb-l">10 <b>THE COMPLETE ROADMAP</b></div><div class="tb-r">Sequencing = Success</div></div>
+    <div class="body">
+      <div class="rmap">
+        <div class="rrow"><div class="rk">Mindset</div><div class="rv"><b>Victory</b> — choose it every morning</div></div>
+        <div class="rrow"><div class="rk">The Highway</div><div class="rv">Vision → 3-Year Checkpoint → 1-Year F:E → <b>4 C's</b></div></div>
+        <div class="rrow"><div class="rk">Supported By</div><div class="rv">Execution Architecture — <b>Model · Systems · Process · Playbook</b></div></div>
+        <div class="rrow"><div class="rk">Protected By</div><div class="rv">Energy Audit &amp; S.A.D. — <b>Systemize · Automate · Delegate</b></div></div>
+        <div class="rrow"><div class="rk">Stabilized By</div><div class="rv">The Triangle — <b>Pricing + Planning + Product</b></div></div>
+        <div class="rrow dest"><div class="rk">Destination</div><div class="rv"><b>The 4 C's to Freedom</b> — time, capital, community, calling</div></div>
+      </div>
+      <p class="rseq">Every piece connects. Nothing is random. <b>Sequencing = Success.</b></p>
+    </div>
+    <div class="foot"><div class="fl"><span class="je">J<em>·</em>E</span> IRON &amp; INFRASTRUCTURE LLC · KEY SYSTEMS</div><div class="fr">14 / 15</div></div>
+  </div>
+</section>
+
+<!-- 17 FINALE -->
+<section class="page" data-screen-label="Finale">
+  <div class="hazard top"></div>
+  <div class="grid-bg"></div>
+  <div class="frame finale-pg">
+    <span class="eyebrow" style="justify-content:center">Your Highway Starts Now</span>
+    <h2 style="margin-top:18px">Stop <span class="o">dreaming.</span><br />Start building.</h2>
+    <div class="fsub">Simple Scales · Complex Fails</div>
+    <p>The complete highway runs from exactly where you are to exactly where you're going. Let's build it together.</p>
+    <div class="org">Iron &amp; Infrastructure LLC &nbsp;·&nbsp; Jacob Emery, Owner</div>
+  </div>
+  <div class="hazard bot"></div>
+</section>
+
+<div class="toolbar"><button onclick="window.print()">Save as PDF ↓</button></div>
+
+</body>
+</html>

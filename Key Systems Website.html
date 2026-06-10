@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Key Systems — Iron &amp; Infrastructure · Jacob Emery</title>
+<template id="__bundler_thumbnail" data-bg-color="#0b0c0e">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0b0c0e" />
+    <circle cx="600" cy="330" r="150" fill="none" stroke="#e01e26" stroke-width="14" />
+    <text x="600" y="378" font-family="Anton, sans-serif" font-size="150" fill="#f3f4f5" text-anchor="middle">JE</text>
+    <text x="600" y="560" font-family="Anton, sans-serif" font-size="92" fill="#f3f4f5" text-anchor="middle" letter-spacing="2">KEY</text>
+    <text x="600" y="650" font-family="Anton, sans-serif" font-size="64" fill="#e01e26" text-anchor="middle" letter-spacing="10">SYSTEMS</text>
+  </svg>
+</template>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#0b0c0e;
+    --steel-900:#101316;
+    --steel-800:#171b1f;
+    --steel-700:#20242a;
+    --concrete:#2a2f36;
+    --line:rgba(255,255,255,.09);
+    --line-strong:rgba(255,255,255,.17);
+    --fog:#99a0aa;
+    --steel-200:#d7dadf;
+    --white:#f3f4f5;
+    --forge:#e01e26;
+    --forge-deep:#b3141b;
+    --hazard:#e01e26;
+    --go:#34c06a;
+    --stop:#e2402c;
+    --display:'Anton',sans-serif;
+    --ui:'Barlow Condensed',sans-serif;
+    --body:'Barlow',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+    --maxw:1280px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;overflow-x:hidden}
+  body{
+    background:var(--ink);color:var(--white);
+    font-family:var(--body);font-size:18px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9000;
+    opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  body.tex-min::after{display:none}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 40px}
+
+  .eyebrow{font-family:var(--ui);text-transform:uppercase;letter-spacing:.28em;
+    font-weight:600;font-size:13px;color:var(--forge);display:inline-flex;align-items:center;gap:12px}
+  .eyebrow::before{content:"";width:34px;height:2px;background:var(--forge);display:inline-block}
+  .eyebrow.muted{color:var(--fog)}.eyebrow.muted::before{background:var(--fog)}
+  .display{font-family:var(--display);text-transform:uppercase;line-height:.92;letter-spacing:.005em;font-weight:400}
+  .sect-num{font-family:var(--mono);font-weight:700;color:var(--forge);font-size:13px;letter-spacing:.18em}
+
+  .btn{font-family:var(--ui);text-transform:uppercase;letter-spacing:.12em;font-weight:700;font-size:16px;
+    display:inline-flex;align-items:center;gap:12px;padding:18px 30px;border:none;cursor:pointer;
+    background:var(--forge);color:#120a05;
+    clip-path:polygon(0 0,100% 0,100% 100%,14px 100%,0 calc(100% - 14px));
+    transition:transform .15s ease,background .2s ease}
+  .btn:hover{background:var(--white);transform:translateY(-2px)}
+  .btn .arw{transition:transform .2s ease}.btn:hover .arw{transform:translateX(4px)}
+  .btn.ghost{background:transparent;color:var(--white);border:1.5px solid var(--line-strong);clip-path:none}
+  .btn.ghost:hover{background:var(--steel-800);border-color:var(--forge)}
+
+  /* monogram */
+  .mono-mark{display:inline-flex;align-items:center;font-family:var(--display);
+    letter-spacing:.02em;line-height:1}
+  .mono-mark .je{display:inline-flex;align-items:center;gap:7px}
+  .mono-mark .je b{font-weight:400}
+  .mono-mark .bar{width:2px;height:.82em;background:var(--forge);display:inline-block}
+
+  /* ===== NAV ===== */
+  header.nav{position:sticky;top:0;z-index:8000;background:rgba(11,12,14,.82);
+    backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:74px}
+  .brand{display:flex;align-items:center;gap:13px}
+  .ii-mark{display:grid;place-items:center;flex:none}
+  .ii-mark img{height:52px;display:block}
+  .logo-plate{background:#f3f4f5;display:grid;place-items:center;padding:8px 11px;
+    clip-path:polygon(0 0,100% 0,100% 100%,9px 100%,0 calc(100% - 9px))}
+  .logo-plate img{height:30px;display:block}
+  .brand .bt{font-family:var(--ui);text-transform:uppercase;display:flex;flex-direction:column;justify-content:center;gap:2px}
+  .brand .bt .a{font-weight:600;font-size:10px;letter-spacing:.22em;color:var(--fog);line-height:1;white-space:nowrap}
+  .brand .bt .b{font-family:var(--display);font-size:19px;letter-spacing:.02em;line-height:1}
+  .nav-links{display:flex;align-items:center;gap:26px;font-family:var(--ui);text-transform:uppercase;
+    letter-spacing:.12em;font-weight:600;font-size:14px;white-space:nowrap}
+  .nav-links a{color:var(--steel-200);transition:color .2s}.nav-links a:hover{color:var(--forge)}
+  .nav-cta{font-family:var(--ui);text-transform:uppercase;letter-spacing:.12em;font-weight:700;font-size:14px;
+    padding:13px 22px;background:var(--forge);color:#120a05;white-space:nowrap;
+    clip-path:polygon(0 0,100% 0,100% 100%,10px 100%,0 calc(100% - 10px))}
+  .nav-cta:hover{background:var(--white)}
+  .nav-burger{display:none}
+
+  /* ===== HERO ===== */
+  .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);padding:96px 0 90px}
+  .hero-grid-bg{position:absolute;inset:0;z-index:0;opacity:.5;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:64px 64px;mask-image:radial-gradient(120% 95% at 50% 0%,#000 0%,transparent 72%)}
+  body.tex-min .hero-grid-bg{display:none}
+  .hero-inner{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;align-items:center}
+  .hero-crest{margin-bottom:24px}
+  .hero-crest img{height:clamp(104px,14vw,156px);display:block;filter:drop-shadow(0 10px 34px rgba(0,0,0,.55))}
+  .hero h1{font-size:clamp(72px,15vw,230px);margin:26px 0 0;letter-spacing:.01em}
+  .hero h1 .sys{color:var(--forge);display:block;font-size:.62em;letter-spacing:.16em;margin-top:.04em}
+  .hero .tagline{font-family:var(--ui);text-transform:uppercase;letter-spacing:.2em;font-weight:700;
+    font-size:clamp(16px,2vw,22px);margin-top:30px;color:var(--steel-200)}
+  .hero .tagline b{color:var(--forge)}
+  .hero .sub{max-width:52ch;color:var(--steel-200);font-size:19px;margin:26px auto 0}
+  .hero-cta{display:flex;gap:16px;margin-top:40px;flex-wrap:wrap;justify-content:center}
+  .hero-foot{margin-top:54px;display:flex;gap:0;flex-wrap:wrap;justify-content:center;border-top:1px solid var(--line);padding-top:0}
+  .hf{padding:20px 30px;border-right:1px solid var(--line);font-family:var(--ui);text-transform:uppercase;
+    letter-spacing:.14em;font-size:13px;color:var(--fog)}
+  .hf:last-child{border-right:none}.hf b{color:var(--white);font-weight:700}
+
+  /* ===== TICKER ===== */
+  .ticker{background:var(--forge);color:#120a05;overflow:hidden;border-top:2px solid #120a05;border-bottom:2px solid #120a05}
+  .ticker-track{display:flex;gap:0;white-space:nowrap;font-family:var(--display);text-transform:uppercase;
+    font-size:24px;padding:13px 0;animation:scroll 34s linear infinite}
+  .ticker-track span{display:inline-flex;align-items:center;gap:36px;padding-right:36px}
+  .ticker-track .dot{width:9px;height:9px;background:#120a05;border-radius:50%}
+  @keyframes scroll{to{transform:translateX(-50%)}}
+
+  /* ===== SECTION BASICS ===== */
+  section.block{padding:108px 0;position:relative}
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-bottom:58px;flex-wrap:wrap}
+  .sec-head .lead h2{font-size:clamp(38px,4.8vw,72px);max-width:16ch;margin-top:14px}
+  .sec-head .meta{font-family:var(--ui);text-transform:uppercase;letter-spacing:.18em;font-size:13px;color:var(--fog);text-align:right;line-height:1.7}
+  .alt{background:var(--steel-900);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+
+  /* ===== KEY SYSTEMS ACRONYM ===== */
+  .acro{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line)}
+  .acro-col{padding:40px 44px}
+  .acro-col.key{background:var(--steel-800);border-right:1px solid var(--line)}
+  .acro-col.sys{background:var(--ink)}
+  .acro-col .ch{font-family:var(--ui);text-transform:uppercase;letter-spacing:.16em;font-weight:700;
+    font-size:14px;color:var(--fog);margin-bottom:8px}
+  .acro-col .cw{font-family:var(--display);text-transform:uppercase;font-size:clamp(48px,6vw,84px);
+    line-height:.9;margin-bottom:8px;color:var(--forge)}
+  .acro-col .csub{color:var(--fog);font-size:15px;margin-bottom:20px;max-width:34ch}
+  .acro-col .csub b{color:var(--steel-200)}
+  .arow{display:grid;grid-template-columns:64px 1fr;gap:18px;align-items:baseline;padding:14px 0;border-top:1px solid var(--line)}
+  .arow .lt{font-family:var(--display);font-size:42px;line-height:1;color:var(--forge);text-align:center}
+  .arow .wd{font-family:var(--ui);text-transform:uppercase;font-weight:700;font-size:22px;letter-spacing:.04em}
+  .arow .wd small{display:block;font-family:var(--body);text-transform:none;font-weight:400;
+    letter-spacing:0;font-size:14px;color:var(--fog);margin-top:2px}
+  .acro-foot{margin-top:30px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    font-family:var(--ui);text-transform:uppercase;letter-spacing:.04em;font-size:18px;color:var(--steel-200)}
+  .acro-foot .eq{background:var(--forge);color:#120a05;font-weight:700;padding:11px 20px;font-size:15px;
+    letter-spacing:.08em;white-space:nowrap;flex:none;
+    clip-path:polygon(0 0,100% 0,100% 100%,12px 100%,0 calc(100% - 12px))}
+  .key-bridge{margin-top:26px;padding-top:22px;border-top:1px dashed var(--line-strong);
+    font-family:var(--body);color:var(--fog);font-size:15px;line-height:1.5}
+  .key-bridge b{color:var(--forge);font-family:var(--ui);text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+
+  /* ===== MINDSET: VICTORY OR VICTIM ===== */
+  .mind-quote{font-family:var(--display);text-transform:uppercase;font-size:clamp(30px,4.4vw,62px);
+    line-height:1;max-width:18ch;margin:8px 0 50px}
+  .mind-quote .q{color:var(--forge)}
+  .vv{display:grid;grid-template-columns:1fr 64px 1fr;align-items:stretch;gap:0}
+  .vv-card{border:1px solid var(--line);padding:38px 36px;background:var(--steel-800)}
+  .vv-card .tag{font-family:var(--display);text-transform:uppercase;font-size:clamp(34px,4vw,56px);line-height:1}
+  .vv-card.victim{opacity:.92}
+  .vv-card.victim .tag{color:transparent;-webkit-text-stroke:1.5px var(--fog)}
+  .vv-card.victory{background:var(--ink);border-color:var(--forge)}
+  .vv-card.victory .tag{color:var(--forge)}
+  .vv-card ul{list-style:none;margin-top:24px;display:flex;flex-direction:column;gap:13px}
+  .vv-card li{display:flex;gap:13px;align-items:flex-start;color:var(--steel-200);font-size:16px}
+  .vv-card li .mk{font-family:var(--mono);font-weight:700;flex:none;width:20px}
+  .vv-card.victim li .mk{color:var(--stop)}
+  .vv-card.victory li .mk{color:var(--go)}
+  .vv-mid{display:grid;place-items:center;font-family:var(--ui);text-transform:uppercase;
+    font-weight:700;letter-spacing:.1em;font-size:13px;color:var(--fog);position:relative}
+  .vv-mid span{background:var(--ink);border:1px solid var(--line-strong);border-radius:50%;
+    width:52px;height:52px;display:grid;place-items:center;color:var(--forge)}
+  .mind-note{margin-top:30px;font-family:var(--ui);text-transform:uppercase;letter-spacing:.16em;
+    font-size:14px;color:var(--fog)}
+  .mind-note b{color:var(--white)}
+
+  /* ===== HIGHWAY (4 levels) ===== */
+  .levels{display:flex;flex-direction:column;gap:14px}
+  .lvl{display:grid;grid-template-columns:120px 1fr auto;gap:30px;align-items:center;
+    border:1px solid var(--line);background:var(--steel-800);padding:28px 34px;position:relative;overflow:hidden;
+    transition:border-color .25s,transform .25s}
+  .lvl:hover{border-color:var(--forge);transform:translateX(6px)}
+  .lvl::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--forge);opacity:.4}
+  .lvl:nth-child(1)::before{opacity:.4}.lvl:nth-child(2)::before{opacity:.6}
+  .lvl:nth-child(3)::before{opacity:.8}.lvl:nth-child(4)::before{opacity:1}
+  .lvl .lnum{font-family:var(--display);font-size:clamp(42px,5vw,72px);line-height:.85;color:transparent;
+    -webkit-text-stroke:1.5px var(--forge)}
+  .lvl:nth-child(4) .lnum{color:var(--forge);-webkit-text-stroke:0}
+  .lvl .lbody h4{font-family:var(--ui);text-transform:uppercase;font-size:clamp(22px,2.4vw,30px);
+    font-weight:700;letter-spacing:.02em;line-height:1}
+  .lvl .lbody p{color:var(--fog);font-size:15px;margin-top:6px;max-width:46ch}
+  .lvl .lmeta{text-align:right;font-family:var(--ui);text-transform:uppercase;min-width:120px}
+  .lvl .lmeta .t{font-size:13px;letter-spacing:.16em;color:var(--forge);font-weight:700;line-height:1.25}
+  .lvl .lmeta .d{font-size:12px;letter-spacing:.16em;color:var(--fog);margin-top:9px;line-height:1.2}
+
+  /* ===== 4 C's ===== */
+  .cs{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line)}
+  .cc{padding:34px 28px;border-right:1px solid var(--line);position:relative;transition:background .25s}
+  .cs .cc:last-child{border-right:none}
+  .cc:hover{background:var(--steel-800)}
+  .cc .ico{width:46px;height:46px;display:grid;place-items:center;border:1.5px solid var(--forge);
+    color:var(--forge);margin-bottom:22px}
+  .cc .ico svg{width:24px;height:24px}
+  .cc h4{font-family:var(--display);text-transform:uppercase;font-size:30px;line-height:.95;letter-spacing:.01em}
+  .cc .free{font-family:var(--ui);text-transform:uppercase;letter-spacing:.14em;font-size:12px;
+    color:var(--forge);font-weight:700;margin:8px 0 12px}
+  .cc p{color:var(--fog);font-size:15px}
+
+  /* ===== EXECUTION ARCHITECTURE (flow) ===== */
+  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line)}
+  .fstep{padding:34px 26px;border-right:1px solid var(--line);position:relative}
+  .flow .fstep:last-child{border-right:none}
+  .fstep .fn{font-family:var(--mono);font-weight:700;color:var(--forge);font-size:13px;letter-spacing:.12em}
+  .fstep h4{font-family:var(--ui);text-transform:uppercase;font-size:24px;font-weight:700;margin:16px 0 4px;letter-spacing:.02em}
+  .fstep .sub{font-family:var(--ui);text-transform:uppercase;letter-spacing:.14em;font-size:12px;color:var(--forge);margin-bottom:12px}
+  .fstep p{color:var(--fog);font-size:14px}
+  .fstep .alt-num{position:absolute;right:18px;top:24px;font-family:var(--display);font-size:34px;
+    color:var(--steel-700);line-height:1}
+  .flow-scale{display:flex;justify-content:space-between;margin-top:18px;font-family:var(--ui);
+    text-transform:uppercase;letter-spacing:.14em;font-size:12px;color:var(--fog)}
+  .flow-scale b{color:var(--forge)}
+
+  /* ===== S.A.D. ===== */
+  .sad{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .sad-card{border:1px solid var(--line);background:var(--steel-800);padding:32px 30px}
+  .sad-card .n{font-family:var(--display);font-size:48px;line-height:.9;color:var(--forge)}
+  .sad-card h4{font-family:var(--ui);text-transform:uppercase;font-size:26px;font-weight:700;margin:10px 0 10px;letter-spacing:.03em}
+  .sad-card p{color:var(--fog);font-size:15px}
+  .dri{margin-top:18px;border:1px solid var(--forge);background:linear-gradient(180deg,rgba(255,90,31,.08),transparent);
+    padding:30px 34px;display:grid;grid-template-columns:auto 1fr;gap:30px;align-items:center}
+  .dri .big{font-family:var(--display);font-size:clamp(40px,5vw,68px);color:var(--forge);line-height:.9}
+  .dri .big small{display:block;font-family:var(--ui);font-size:13px;letter-spacing:.16em;color:var(--fog);margin-top:8px;text-transform:uppercase}
+  .dri p{font-size:17px;color:var(--steel-200);max-width:52ch}
+  .dri p b{color:var(--white)}
+
+  /* ===== AUDIT STEPS ===== */
+  .audit{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line)}
+  .ast{padding:30px 26px;border-right:1px solid var(--line)}
+  .audit .ast:last-child{border-right:none}
+  .ast .s{font-family:var(--mono);font-weight:700;color:var(--forge);font-size:12px;letter-spacing:.14em}
+  .ast h4{font-family:var(--ui);text-transform:uppercase;font-size:22px;font-weight:700;margin:14px 0 8px;letter-spacing:.04em}
+  .ast p{color:var(--fog);font-size:14px}
+
+  /* ===== TRIANGLE ===== */
+  .tri-wrap{display:grid;grid-template-columns:.85fr 1.15fr;gap:54px;align-items:center}
+  .tri{position:relative;aspect-ratio:1/.9;display:grid;place-items:center}
+  .tri svg{width:100%;height:100%;overflow:visible}
+  .tri .tlabel{position:absolute;font-family:var(--display);text-transform:uppercase;font-size:20px;color:var(--white)}
+  .tri .tlabel.top{top:-2%;left:50%;transform:translateX(-50%);color:var(--forge)}
+  .tri .tlabel.bl{bottom:6%;left:-2%}
+  .tri .tlabel.br{bottom:6%;right:-2%}
+  .tri .tcenter{font-family:var(--ui);text-transform:uppercase;text-align:center;line-height:1.05}
+  .tri .tcenter .a{font-family:var(--display);font-size:22px;color:var(--white)}
+  .tri .tcenter .b{font-size:11px;letter-spacing:.18em;color:var(--fog);margin-top:4px}
+  .tri-list{display:flex;flex-direction:column;gap:0}
+  .tli{padding:22px 0;border-top:1px solid var(--line)}
+  .tri-list .tli:last-child{border-bottom:1px solid var(--line)}
+  .tli h4{font-family:var(--ui);text-transform:uppercase;font-size:21px;font-weight:700;letter-spacing:.04em;color:var(--forge)}
+  .tli p{color:var(--fog);font-size:15px;margin-top:5px}
+  .tri-note{margin-top:30px;color:var(--steel-200);font-size:18px;max-width:60ch}
+  .tri-note b{color:var(--white)}
+
+  /* ===== BELIEF BLOCKERS ===== */
+  .blockers{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .blk{border:1px solid var(--line);background:var(--steel-800);padding:32px 30px;position:relative}
+  .blk .x{position:absolute;right:24px;top:26px;color:var(--stop);font-family:var(--mono);font-weight:700;font-size:20px}
+  .blk .n{font-family:var(--mono);font-weight:700;color:var(--fog);font-size:13px;letter-spacing:.14em}
+  .blk h4{font-family:var(--display);text-transform:uppercase;font-size:24px;line-height:1;margin:14px 0 12px;max-width:14ch}
+  .blk h4 .q{color:var(--forge)}
+  .blk p{color:var(--fog);font-size:15px}
+
+  /* ===== FINALE ===== */
+  .finale{padding:124px 0 0;text-align:center;position:relative;overflow:hidden}
+  .finale .hazard{position:absolute;inset:0 0 auto 0;height:14px;
+    background:repeating-linear-gradient(45deg,var(--forge) 0 22px,#0b0c0e 22px 44px);opacity:.95}
+  .finale h2{font-size:clamp(46px,7.4vw,104px);margin:18px auto 0;line-height:1.02;letter-spacing:.01em}
+  .finale h2 .o{color:transparent;-webkit-text-stroke:2px var(--forge)}
+  .finale .fsub{font-family:var(--ui);text-transform:uppercase;letter-spacing:.2em;font-weight:700;
+    font-size:clamp(14px,1.6vw,18px);color:var(--forge);margin:22px auto 0}
+  .finale p.lead{color:var(--steel-200);max-width:46ch;margin:18px auto 38px;font-size:19px}
+  footer{border-top:1px solid var(--line);padding:46px 0 60px;margin-top:96px}
+  .foot-grid{display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap}
+  .foot-mini{font-family:var(--ui);text-transform:uppercase;letter-spacing:.14em;font-size:12px;color:var(--fog);line-height:1.9}
+  .foot-marks{display:flex;align-items:center;gap:18px;margin-bottom:18px}
+  .foot-mini b{color:var(--steel-200)}
+  .socials{display:flex;gap:14px;flex-wrap:wrap}
+  .socials a{width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--line-strong);
+    font-family:var(--ui);font-weight:700;font-size:13px;color:var(--steel-200);transition:all .2s;text-transform:uppercase}
+  .socials a:hover{background:var(--forge);color:#120a05;border-color:var(--forge)}
+
+  /* ===== PROMISE BAND ===== */
+  .promise{display:grid;grid-template-columns:1.1fr .9fr;gap:54px;align-items:center}
+  .promise h2{font-size:clamp(32px,4vw,58px);line-height:1}
+  .promise h2 .q{color:var(--forge)}
+  .promise .pcopy p{color:var(--steel-200);font-size:19px;margin-top:22px;max-width:46ch}
+  .promise .pcopy p b{color:var(--white)}
+  .whofor{border:1px solid var(--line);background:var(--steel-800)}
+  .whofor .wh{font-family:var(--ui);text-transform:uppercase;letter-spacing:.18em;font-weight:700;
+    font-size:13px;color:var(--forge);padding:22px 28px 0}
+  .whofor ul{list-style:none;padding:18px 28px 26px;display:flex;flex-direction:column;gap:0}
+  .whofor li{display:flex;gap:16px;align-items:flex-start;padding:15px 0;border-top:1px solid var(--line);
+    color:var(--steel-200);font-size:16px}
+  .whofor li:first-child{border-top:none}
+  .whofor li .mk{font-family:var(--display);color:var(--forge);font-size:20px;line-height:1;flex:none;width:22px}
+
+  /* ===== STORY ===== */
+  .story-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:56px;align-items:start}
+  .story-photo{position:relative}
+  image-slot{background:var(--steel-700);color:var(--fog)}
+  .story-photo image-slot{width:100%;height:560px;border:1px solid var(--line-strong);filter:grayscale(.2) contrast(1.05)}
+  .story-photo .ptag{position:absolute;left:-12px;bottom:34px;background:var(--forge);color:#120a05;
+    font-family:var(--ui);text-transform:uppercase;font-weight:700;letter-spacing:.12em;font-size:13px;padding:10px 18px}
+  .story-quote{margin-top:24px;border-left:3px solid var(--forge);padding:6px 0 6px 22px;font-style:italic;
+    color:var(--steel-200);font-size:17px;line-height:1.5}
+  .story-quote b{display:block;font-style:normal;font-family:var(--ui);text-transform:uppercase;
+    letter-spacing:.16em;font-size:12px;color:var(--fog);margin-top:10px}
+  .story-lead{font-size:21px;color:var(--steel-200);margin-bottom:40px;line-height:1.5}
+  .timeline{display:flex;flex-direction:column}
+  .tl-row{display:grid;grid-template-columns:120px 1fr;gap:26px;padding:22px 0;border-top:1px solid var(--line)}
+  .tl-row:last-child{border-bottom:1px solid var(--line)}
+  .tl-year{font-family:var(--display);font-size:30px;color:var(--forge);line-height:1}
+  .tl-year .sub{display:block;font-family:var(--ui);font-size:11px;letter-spacing:.16em;color:var(--fog);text-transform:uppercase;margin-top:6px}
+  .tl-body h4{font-family:var(--ui);text-transform:uppercase;letter-spacing:.02em;font-size:19px;font-weight:700;margin-bottom:5px}
+  .tl-body p{color:var(--fog);font-size:15px}
+
+  /* ===== PROOF BRANDS ===== */
+  .brands{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .brand-card{border:1px solid var(--line);background:var(--steel-800);aspect-ratio:1/.74;display:flex;flex-direction:column}
+  .brand-card image-slot{flex:1;width:100%;height:auto}
+  .brand-card .cap{font-family:var(--ui);text-transform:uppercase;letter-spacing:.1em;font-size:12px;
+    color:var(--fog);padding:14px 16px;border-top:1px solid var(--line)}
+  .proof-note{margin-top:36px;max-width:62ch;color:var(--steel-200);font-size:19px}
+  .proof-note b{color:var(--white)}
+
+  /* ===== TWO-UP DOWNLOAD + PODCAST ===== */
+  .twoup{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line)}
+  .panel{padding:64px 54px;position:relative}
+  .panel.dl{background:var(--steel-800);border-right:1px solid var(--line)}
+  .panel.pod{background:var(--ink)}
+  .panel h3{font-family:var(--display);text-transform:uppercase;font-size:clamp(28px,3vw,44px);line-height:.96;margin:18px 0 16px}
+  .panel p{color:var(--fog);max-width:38ch;margin-bottom:30px}
+  .pod-cover{display:flex;gap:22px;align-items:center;margin:18px 0 26px}
+  .pod-cover image-slot{width:112px;height:112px;border:1px solid var(--line-strong);flex:none}
+  .pod-cover .pm .t{font-family:var(--ui);text-transform:uppercase;font-weight:700;letter-spacing:.04em;font-size:18px}
+  .pod-cover .pm .s{color:var(--fog);font-size:13px;text-transform:uppercase;letter-spacing:.14em;margin-top:5px;font-family:var(--ui)}
+
+  /* ===== RESPONSIVE ===== */
+  @media(max-width:1040px){
+    .nav-links,.nav-cta{display:none}
+    .nav-burger{display:grid;place-items:center;width:42px;height:42px;border:1px solid var(--line-strong)}
+    .nav-burger span{width:18px;height:2px;background:var(--white);position:relative}
+    .nav-burger span::before,.nav-burger span::after{content:"";position:absolute;left:0;width:18px;height:2px;background:var(--white)}
+    .nav-burger span::before{top:-6px}.nav-burger span::after{top:6px}
+  }
+  @media(max-width:980px){
+    .acro{grid-template-columns:1fr}
+    .acro-col.key{border-right:none;border-bottom:1px solid var(--line)}
+    .vv{grid-template-columns:1fr}
+    .vv-mid{padding:14px 0}
+    .cs{grid-template-columns:1fr 1fr}
+    .cs .cc:nth-child(2){border-right:none}
+    .cs .cc:nth-child(-n+2){border-bottom:1px solid var(--line)}
+    .flow{grid-template-columns:1fr 1fr}
+    .flow .fstep:nth-child(2){border-right:none}
+    .flow .fstep:nth-child(-n+2){border-bottom:1px solid var(--line)}
+    .sad{grid-template-columns:1fr}
+    .audit{grid-template-columns:1fr 1fr}
+    .audit .ast:nth-child(2){border-right:none}
+    .audit .ast:nth-child(-n+2){border-bottom:1px solid var(--line)}
+    .tri-wrap{grid-template-columns:1fr;gap:40px}
+    .tri{max-width:420px;margin:0 auto;width:100%}
+    .blockers{grid-template-columns:1fr}
+    .dri{grid-template-columns:1fr;gap:18px}
+    .lvl{grid-template-columns:84px 1fr;gap:20px}
+    .lvl .lmeta{grid-column:1/-1;text-align:left}
+    .promise{grid-template-columns:1fr;gap:36px}
+    .story-grid{grid-template-columns:1fr;gap:40px}
+    .story-photo image-slot{height:440px}
+    .brands{grid-template-columns:1fr 1fr}
+    .twoup{grid-template-columns:1fr}
+    .panel.dl{border-right:none;border-bottom:1px solid var(--line)}
+  }
+  @media(max-width:720px){
+    .wrap{padding:0 22px}
+    .nav-links,.nav-cta{display:none}
+    .nav-burger{display:grid;place-items:center;width:42px;height:42px;border:1px solid var(--line-strong)}
+    .nav-burger span{width:18px;height:2px;background:var(--white);position:relative}
+    .nav-burger span::before,.nav-burger span::after{content:"";position:absolute;left:0;width:18px;height:2px;background:var(--white)}
+    .nav-burger span::before{top:-6px}.nav-burger span::after{top:6px}
+    section.block{padding:70px 0}
+    .hero{padding:64px 0 70px}
+    .hf{padding:16px 18px}
+    .promise h2,.sec-head .lead h2{font-size:clamp(30px,8vw,42px)}
+    .cs,.flow,.audit,.blockers{grid-template-columns:1fr}
+    .cs .cc,.flow .fstep,.audit .ast{border-right:none!important;border-bottom:1px solid var(--line)}
+    .cs .cc:last-child,.flow .fstep:last-child,.audit .ast:last-child{border-bottom:none}
+    .brands{grid-template-columns:1fr}
+    .panel{padding:54px 24px}
+    body{font-size:17px}
+  }
+</style>
+</head>
+<body class="tex-full">
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a href="#top" class="brand">
+      <span class="ii-mark"><img src="assets/ii-logo.png" alt="Iron &amp; Infrastructure" /></span>
+      <span class="bt"><span class="a">Iron &amp; Infrastructure</span><span class="b">Key Systems</span></span>
+    </a>
+    <nav class="nav-links">
+      <a href="#framework">The Roadmap</a>
+      <a href="#freedom">The 4 C's</a>
+      <a href="#story">My Story</a>
+      <a href="#podcast">Podcast</a>
+    </nav>
+    <a href="#apply" class="nav-cta">Apply Now</a>
+    <button class="nav-burger" aria-label="Menu"><span></span></button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top" data-screen-label="Hero">
+  <div class="hero-grid-bg"></div>
+  <div class="wrap hero-inner">
+    <span class="hero-crest"><img src="assets/ii-logo.png" alt="Iron &amp; Infrastructure" /></span>
+    <h1 class="display">Key<span class="sys">Systems</span></h1>
+    <p class="sub">Coaching for business leaders who are done dreaming and ready to build a life by design. The roadmap I used to go from $9 an hour to an 8-figure business owner.</p>
+    <div class="hero-cta">
+      <a href="#apply" class="btn">Apply For Coaching <span class="arw">→</span></a>
+      <a href="#download" class="btn ghost">Free Download</a>
+    </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span>Knowledge<i class="dot"></i>Execution<i class="dot"></i>Time<i class="dot"></i>Energy<i class="dot"></i>Money<i class="dot"></i>Stress<i class="dot"></i></span>
+    <span>Knowledge<i class="dot"></i>Execution<i class="dot"></i>Time<i class="dot"></i>Energy<i class="dot"></i>Money<i class="dot"></i>Stress<i class="dot"></i></span>
+    <span>Knowledge<i class="dot"></i>Execution<i class="dot"></i>Time<i class="dot"></i>Energy<i class="dot"></i>Money<i class="dot"></i>Stress<i class="dot"></i></span>
+    <span>Knowledge<i class="dot"></i>Execution<i class="dot"></i>Time<i class="dot"></i>Energy<i class="dot"></i>Money<i class="dot"></i>Stress<i class="dot"></i></span>
+  </div>
+</div>
+
+<!-- PROMISE / WHO IT'S FOR -->
+<section class="block" id="promise" data-screen-label="Promise">
+  <div class="wrap promise">
+    <div class="pcopy">
+      <span class="eyebrow">The Premise</span>
+      <h2 class="display" style="margin-top:18px">Your dream is like your <span class="q">fingerprint.</span><br />It's yours and yours only.</h2>
+      <p>Most people don't have a motivation problem. They have a <b>sequencing</b> problem. Random effort, no blueprint, no order of operations. Key Systems is the highway: it helps you get clarity on your dream, then tells you what to build and the order in which to build it. <b>Sequencing equals success.</b></p>
+    </div>
+    <div class="whofor">
+      <div class="wh">Built for you if</div>
+      <ul>
+        <li><span class="mk">›</span> You're a business leader lacking clarity and confidence</li>
+        <li><span class="mk">›</span> You're ready to build a different life, but don't know how</li>
+        <li><span class="mk">›</span> You want freedom of time, money, and purpose — not just revenue</li>
+        <li><span class="mk">›</span> You're realizing that it's on you — and no one's coming to save you</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FRAMEWORK / ACRONYM -->
+<section class="block" id="framework" data-screen-label="The Framework">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="lead">
+        <span class="sect-num">01 / THE ROADMAP</span>
+        <h2 class="display">What it stands for</h2>
+      </div>
+    </div>
+    <div class="acro">
+      <div class="acro-col key">
+        <div class="ch">The Foundation</div>
+        <div class="cw">KEY</div>
+        <div class="csub">The three inputs you control. Get these right and everything downstream compounds.</div>
+        <div class="arow"><div class="lt">K</div><div class="wd">Knowledge<small>Investing in personal development.</small></div></div>
+        <div class="arow"><div class="lt">E</div><div class="wd">Execution<small>Action equals acceleration.</small></div></div>
+        <div class="arow"><div class="lt">Y</div><div class="wd">You<small>Becoming the best version of yourself.</small></div></div>
+      </div>
+      <div class="acro-col sys">
+        <div class="ch">The Payoff</div>
+        <div class="cw">SYSTEMS</div>
+        <div class="csub"><b>You Save Yourself Some Time, Energy, Money &amp; Stress.</b> That's what a system actually buys you.</div>
+        <div class="arow"><div class="lt">S</div><div class="wd">Save</div></div>
+        <div class="arow"><div class="lt">Y</div><div class="wd">Yourself</div></div>
+        <div class="arow"><div class="lt">S</div><div class="wd">Some</div></div>
+        <div class="arow"><div class="lt">T</div><div class="wd">Time</div></div>
+        <div class="arow"><div class="lt">E</div><div class="wd">Energy</div></div>
+        <div class="arow"><div class="lt">M</div><div class="wd">Money</div></div>
+        <div class="arow"><div class="lt">S</div><div class="wd">Stress</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE 4 C'S -->
+<section class="block alt" id="freedom" data-screen-label="4 Cs">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="lead">
+        <span class="sect-num">02 / 4 C'S 2 FREE</span>
+        <h2 class="display">This is what you're building toward</h2>
+      </div>
+    </div>
+    <div class="cs">
+      <div class="cc">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <h4>Clock</h4>
+        <div class="free">Time Freedom</div>
+        <p>You own your calendar. Your calendar doesn't own you.</p>
+      </div>
+      <div class="cc">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><path d="M16 7.5c0-1.7-1.8-2.5-4-2.5s-4 .8-4 2.5S9.8 10 12 10s4 .8 4 2.5S14.2 15 12 15s-4-.8-4-2.5"/></svg></div>
+        <h4>Capital</h4>
+        <div class="free">Financial Freedom</div>
+        <p>Money works for you — not the other way around.</p>
+      </div>
+      <div class="cc">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M15.5 14c2.5 0 5 1.8 5 5"/></svg></div>
+        <h4>Community</h4>
+        <div class="free">Relationships</div>
+        <p>You're surrounded by people who elevate you.</p>
+      </div>
+      <div class="cc">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg></div>
+        <h4>Calling</h4>
+        <div class="free">Purpose &amp; Mission</div>
+        <p>You wake up on fire for what you do, every single day.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE HIGHWAY (teaser) -->
+<section class="block" id="highway" data-screen-label="The Highway">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="lead">
+        <span class="sect-num">03 / THE HIGHWAY TO SUCCESS</span>
+        <h2 class="display">A complete roadmap — four levels deep</h2>
+      </div>
+    </div>
+    <div class="levels">
+      <div class="lvl">
+        <div class="lnum">01</div>
+        <div class="lbody"><h4>Mountain Top Vision</h4><p>Find out what the view looks like at the end — and start enjoying the climb.</p></div>
+        <div class="lmeta"><div class="t">The Summit</div><div class="d">5–10+ Years</div></div>
+      </div>
+      <div class="lvl">
+        <div class="lnum">02</div>
+        <div class="lbody"><h4>3-Year Checkpoint</h4><p>Three-year milestones to make sure your momentum is on track.</p></div>
+        <div class="lmeta"><div class="t">The Milestone</div><div class="d">3 Years</div></div>
+      </div>
+      <div class="lvl">
+        <div class="lnum">03</div>
+        <div class="lbody"><h4>1-Year Goals · Quarterly Sprints</h4><p>Annual goals broken into four quarters: 90-day F&amp;E — focus and execution.</p></div>
+        <div class="lmeta"><div class="t">The Execution Lane</div><div class="d">Quarterly</div></div>
+      </div>
+      <div class="lvl">
+        <div class="lnum">04</div>
+        <div class="lbody"><h4>4 C's 2 Free</h4><p>The result of building your highway to success. This is the view.</p></div>
+        <div class="lmeta"><div class="t">The Destination</div><div class="d">The Payoff</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MY STORY -->
+<section class="block alt" id="story" data-screen-label="My Story">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="lead">
+        <span class="sect-num">04 / WHY LISTEN TO ME</span>
+        <h2 class="display">Ditch line to life by design</h2>
+      </div>
+      <div class="meta">$9 / hour to<br />8-figure owner</div>
+    </div>
+    <div class="story-grid">
+      <div class="story-photo">
+        <image-slot id="story-photo" src="assets/slot-story-photo.webp" shape="rect" placeholder="Drop a photo of Jacob"></image-slot>
+        <span class="ptag">Jacob Emery</span>
+        <p class="story-quote">"I'd rather be sidelined trying to achieve greatness than watch greatness achieved and only sit on the sidelines."
+          <b>— Jacob Emery</b></p>
+      </div>
+      <div class="story-copy">
+        <p class="story-lead">I grew up insecure, overweight, and in trouble — no confidence, no plan. Then a mentor asked: "What the hell are you doing with your life?" That one question changed everything. I didn't get here on talent. I got here on a system.</p>
+        <div class="timeline">
+          <div class="tl-row">
+            <div class="tl-year">2007<span class="sub">The Ditch</span></div>
+            <div class="tl-body"><h4>$9 an Hour, Shovel in Hand</h4><p>Skipped college. Started working at R&amp;R Pipeline for $9 an hour with a shovel in my hand, in the ditch line.</p></div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-year">2012<span class="sub">The Commitment</span></div>
+            <div class="tl-body"><h4>Crew Leader at 22</h4><p>Committed to growth and set a bold goal: own R&amp;R Pipeline by 30.</p></div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-year">2019<span class="sub">The Ownership</span></div>
+            <div class="tl-body"><h4>Ownership of R&amp;R Pipeline</h4><p>407 days, through the art of the deal, my partner and I made it happen. Owner of R&amp;R Pipeline.</p></div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-year">Now<span class="sub">The Mission</span></div>
+            <div class="tl-body"><h4>Iron-Built Entrepreneur</h4><p>The iron built my personal and professional infrastructure. Now I'm on a mission to help you build yours.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<section class="block" id="proof" data-screen-label="Proof">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="lead">
+        <span class="sect-num">05 / THE PROOF</span>
+        <h2 class="display">Iron-Built Entrepreneur</h2>
+      </div>
+    </div>
+    <div class="brands">
+      <div class="brand-card"><image-slot id="brand-rr" src="assets/slot-brand-rr.webp" shape="rect" placeholder="R&R Pipeline logo"></image-slot><div class="cap">R&amp;R Pipeline, Inc.</div></div>
+      <div class="brand-card"><image-slot id="brand-mem" src="assets/slot-brand-mem.webp" shape="rect" placeholder="Max Effort Muscle logo"></image-slot><div class="cap">Max Effort Muscle</div></div>
+      <div class="brand-card"><image-slot id="brand-cf" src="assets/slot-brand-cf.webp" shape="rect" placeholder="Uprising Athletics logo"></image-slot><div class="cap">Uprising Athletics</div></div>
+      <div class="brand-card"><image-slot id="brand-pod" src="assets/slot-brand-pod.webp" shape="rect" placeholder="Iron & Infrastructure logo"></image-slot><div class="cap">Iron &amp; Infrastructure</div></div>
+    </div>
+    <p class="proof-note"><b>Success isn't given — it's built.</b> These brands represent how the iron built my infrastructure, both personally and professionally. Now let's build yours.</p>
+  </div>
+</section>
+
+<!-- FREE DOWNLOAD + PODCAST -->
+<section class="block alt" id="download" data-screen-label="Download &amp; Podcast">
+  <div class="wrap">
+    <div class="twoup">
+      <div class="panel dl">
+        <span class="eyebrow">Free Download</span>
+        <h3>Break Barriers<br />Blueprint</h3>
+        <p>Before you can build your highway to success, you must break barriers. Start here with the step-by-step blueprint on how to identify what's holding you back — and how to break through.</p>
+        <a href="#apply" class="btn">Download For Free <span class="arw">↓</span></a>
+      </div>
+      <div class="panel pod" id="podcast">
+        <span class="eyebrow muted">The Show</span>
+        <div class="pod-cover">
+          <image-slot id="pod-cover" src="assets/slot-pod-cover.webp" shape="rect" placeholder="Podcast art"></image-slot>
+          <div class="pm">
+            <div class="t">Iron &amp; Infrastructure</div>
+            <div class="s">Podcast · New Episodes</div>
+          </div>
+        </div>
+        <p>How the iron built both my personal and professional infrastructure. Mentors, stories of resilience, and real, actionable takeaways to build the strongest version of yourself.</p>
+        <a href="https://www.youtube.com/@IronInfrastructurePodcast" target="_blank" rel="noopener" class="btn ghost">Listen On YouTube <span class="arw">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINALE -->
+<section class="finale" id="apply" data-screen-label="Apply">
+  <div class="hazard"></div>
+  <div class="wrap">
+    <span class="eyebrow" style="justify-content:center">Apply For Key Systems Coaching</span>
+    <h2 class="display" style="margin-top:20px">Stop <span class="o">dreaming.</span><br />Start building.</h2>
+    <div class="fsub">Simple Scales · Complex Fails</div>
+    <p class="lead">Group coaching is limited and intentional — business leaders who are ready to take ownership and do the work. If that's you, let's build your highway together.</p>
+    <a href="mailto:jacob@jacobemery.com?subject=Key%20Systems%20Coaching%20Application" class="btn" style="font-size:18px;padding:22px 40px">Apply Now <span class="arw">→</span></a>
+  </div>
+  <footer>
+    <div class="wrap foot-grid">
+      <div class="foot-mini">
+        <div class="foot-marks">
+          <span class="ii-mark"><img src="assets/ii-logo.png" alt="Iron &amp; Infrastructure" style="height:62px" /></span>
+          <span class="logo-plate"><img src="assets/je-logo.png" alt="Jacob Emery" style="height:34px" /></span>
+        </div>
+        <b>Iron &amp; Infrastructure LLC</b><br />
+        Jacob Emery, Owner
+      </div>
+      <div class="socials">
+        <a href="https://www.instagram.com/jacobemery44/?hl=en" target="_blank" rel="noopener">IG</a>
+        <a href="https://x.com/jacobemery44" target="_blank" rel="noopener">X</a>
+        <a href="https://www.linkedin.com/in/jacobemery44" target="_blank" rel="noopener">IN</a>
+        <a href="https://www.youtube.com/@IronInfrastructurePodcast" target="_blank" rel="noopener">YT</a>
+      </div>
+    </div>
+  </footer>
+</section>
+
+<!-- TWEAKS -->
+<div id="tweaks-root"></div>
+<script src="image-slot.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": "#e01e26",
+  "texture": "full"
+}/*EDITMODE-END*/;
+function KSTweaks(){
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  React.useEffect(()=>{ document.documentElement.style.setProperty('--forge', t.accent); },[t.accent]);
+  React.useEffect(()=>{
+    document.body.classList.remove('tex-full','tex-min');
+    document.body.classList.add('tex-'+t.texture);
+  },[t.texture]);
+  return (
+    <TweaksPanel>
+      <TweakSection label="Brand accent" />
+      <TweakColor label="Brand red" value={t.accent}
+        options={['#e01e26','#c8102e','#ff3b30','#a30b16','#ff5a1f']}
+        onChange={(v)=>setTweak('accent', v)} />
+      <TweakSection label="Surface" />
+      <TweakRadio label="Texture" value={t.texture}
+        options={['full','min']}
+        onChange={(v)=>setTweak('texture', v)} />
+    </TweaksPanel>
+  );
+}
+ReactDOM.createRoot(document.getElementById('tweaks-root')).render(<KSTweaks />);
+</script>
+
+</body>
+</html>

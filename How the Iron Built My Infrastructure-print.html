@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>How the Iron Built My Infrastructure — Jacob Emery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#0b0c0e;
+    --paper:#101316;
+    --steel-800:#171b1f;
+    --line:rgba(255,255,255,.10);
+    --line-strong:rgba(255,255,255,.18);
+    --fog:#9aa1ab;
+    --read:#e3e5e8;        /* high-contrast body text */
+    --read-soft:#c3c7cc;
+    --white:#f3f4f5;
+    --forge:#e01e26;
+    --forge-deep:#b3141b;
+    --display:'Anton',sans-serif;
+    --ui:'Barlow Condensed',sans-serif;
+    --body:'Barlow',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--ink);color:var(--read);font-family:var(--body);
+    font-size:20px;line-height:1.78;-webkit-font-smoothing:antialiased;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9;opacity:.04;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  .doc{max-width:760px;margin:0 auto;padding:0 32px}
+
+  /* ---- MASTHEAD ---- */
+  .masthead{padding:80px 0 0;text-align:center}
+  .crest img{height:84px;filter:drop-shadow(0 8px 24px rgba(0,0,0,.5))}
+  .kicker{font-family:var(--ui);text-transform:uppercase;letter-spacing:.28em;font-weight:600;
+    font-size:13px;color:var(--forge);margin-top:30px}
+  h1.title{font-family:var(--display);text-transform:uppercase;line-height:.94;letter-spacing:.01em;
+    font-size:clamp(46px,8vw,82px);margin:18px 0 0;color:var(--white)}
+  h1.title .red{color:var(--forge)}
+  .byline{font-family:var(--ui);text-transform:uppercase;letter-spacing:.2em;font-size:13px;
+    color:var(--fog);margin-top:24px}
+  .byline b{color:var(--read)}
+  .rule{height:1px;background:var(--line);margin:56px 0}
+  .rule.short{width:80px;height:3px;background:var(--forge);margin:48px auto}
+
+  /* ---- EPIGRAPH ---- */
+  .epigraph{font-style:italic;color:var(--read-soft);font-size:22px;line-height:1.7;
+    border-left:3px solid var(--forge);padding:4px 0 4px 26px;margin:0 0 8px}
+
+  /* ---- BODY ---- */
+  p{margin:0 0 26px;text-wrap:pretty}
+  .lead p:first-of-type{font-size:21px}
+  strong,b{color:var(--white);font-weight:600}
+  em{color:var(--read);font-style:italic}
+
+  /* ---- CHAPTER HEADERS ---- */
+  .chapter{margin:74px 0 38px}
+  .chapter .pn{font-family:var(--ui);text-transform:uppercase;letter-spacing:.2em;font-weight:700;
+    font-size:14px;color:var(--forge);display:flex;align-items:center;gap:14px}
+  .chapter .pn::before{content:"";width:30px;height:2px;background:var(--forge)}
+  .chapter h2{font-family:var(--display);text-transform:uppercase;line-height:.96;letter-spacing:.01em;
+    font-size:clamp(34px,5.4vw,54px);margin-top:16px;color:var(--white)}
+  .chapter .sub{font-family:var(--ui);text-transform:uppercase;letter-spacing:.16em;font-size:15px;
+    color:var(--fog);margin-top:10px}
+
+  /* drop cap */
+  .dropcap::first-letter{font-family:var(--display);float:left;color:var(--forge);
+    font-size:78px;line-height:.74;padding:8px 14px 0 0;text-transform:uppercase}
+
+  /* ---- PULL QUOTE ---- */
+  .pull{margin:44px 0;padding:8px 0 8px 0;text-align:center}
+  .pull q{quotes:none}
+  .pull .q{font-family:var(--display);text-transform:uppercase;line-height:1.02;letter-spacing:.01em;
+    font-size:clamp(28px,4.4vw,42px);color:var(--white);display:block}
+  .pull .q .red{color:var(--forge)}
+  .pull .src{font-family:var(--ui);text-transform:uppercase;letter-spacing:.18em;font-size:12px;
+    color:var(--fog);margin-top:18px}
+
+  /* ---- CALLOUT ---- */
+  .callout{border:1px solid var(--line-strong);background:var(--steel-800);padding:32px 34px;margin:40px 0;
+    position:relative}
+  .callout::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--forge)}
+  .callout .lbl{font-family:var(--ui);text-transform:uppercase;letter-spacing:.2em;font-weight:700;
+    font-size:12px;color:var(--forge);margin-bottom:12px}
+  .callout p{font-size:20px;margin:0;color:var(--read);font-style:italic}
+
+  /* ---- CLOSING ---- */
+  .closing{margin:30px 0 0;border-top:1px solid var(--line);padding-top:46px}
+  .closing .big{font-family:var(--display);text-transform:uppercase;line-height:1;
+    font-size:clamp(30px,5vw,46px);color:var(--white);margin-bottom:24px}
+  .closing .big .red{color:var(--forge)}
+  .signoff{font-family:var(--ui);text-transform:uppercase;letter-spacing:.16em;font-size:14px;
+    color:var(--fog);margin:56px 0 0;display:flex;align-items:center;gap:16px}
+  .signoff .je{font-family:var(--display);font-size:22px;color:var(--white);letter-spacing:.04em}
+  .signoff .je em{color:var(--forge);font-style:normal}
+  .endbar{height:14px;margin:70px 0 0;
+    background:repeating-linear-gradient(45deg,var(--forge) 0 20px,var(--ink) 20px 40px)}
+  footer{padding:34px 0 90px;text-align:center;font-family:var(--ui);text-transform:uppercase;
+    letter-spacing:.18em;font-size:12px;color:var(--fog)}
+
+  /* ---- PRINT ---- */
+  @media print{
+    @page{margin:0.85in 0.75in}
+    body{font-size:12pt;line-height:1.65}
+    body::after{display:none}
+    .doc{max-width:none;padding:0}
+    .masthead{padding:0 0 12pt}
+    .chapter{break-after:avoid}
+    .pull,.callout,.epigraph{break-inside:avoid}
+    .endbar{display:none}
+  }
+  @media(max-width:640px){
+    body{font-size:18px}
+    .doc{padding:0 22px}
+    .epigraph{font-size:19px}
+  }
+</style>
+</head>
+<body>
+
+<article class="doc" data-screen-label="Document">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="crest"><img src="assets/ii-logo.png" alt="Iron &amp; Infrastructure" /></div>
+    <div class="kicker">Iron &amp; Infrastructure</div>
+    <h1 class="title">How the Iron<br />Built My <span class="red">Infrastructure</span></h1>
+    <div class="byline">A Story in Three Phases &nbsp;·&nbsp; <b>Jacob Emery</b></div>
+  </header>
+
+  <div class="rule"></div>
+
+  <!-- EPIGRAPH -->
+  <p class="epigraph">The ironic tragedy of life is that it must be lived forward — every decision made in the present, ultimately shaping a future we can't fully see. Yet life only makes sense in reverse, when we look back and connect the dots. In hindsight, the chaos often reveals purpose, and the pain turns into progress. Even in the moment, faced with uncertainty, we have to maintain faith, not fear — and trust that the path ahead will eventually reveal its meaning.</p>
+
+  <div class="rule short"></div>
+
+  <!-- INTRO -->
+  <section class="lead">
+    <p>Good morning, everyone. Welcome to the Max Effort Muscle subscriber event. My name is Jacob Emery. On behalf of the Max Effort Mafia, we appreciate everyone's time in coming out — I'm honored to be here. A special thanks to G for this opportunity.</p>
+    <p>Today, I want to tell you a story. No big deal — just a story about three phases of my life that led me here. But before I start, I'll ask you a question.</p>
+  </section>
+
+  <div class="callout">
+    <div class="lbl">Keep this in mind</div>
+    <p>How many of you have ever been in a situation you thought was absolutely detrimental — and as things progressed, you looked back and realized it was the exact thing you needed to have a breakthrough?</p>
+  </div>
+
+  <!-- PHASE 1 -->
+  <div class="chapter">
+    <div class="pn">Phase One</div>
+    <h2>The Iron Foundation</h2>
+    <div class="sub">The Breakdown</div>
+  </div>
+
+  <p class="dropcap">Dead or in jail by 21 — that was my ceiling of success in high school. I did not fit in anywhere. As a kid, I had a passion for running equipment. That was my first love for iron. My weekends were spent digging footers for a basement, or some other activity involving equipment. I have videos of myself at five years old learning to run a full-size track hoe.</p>
+
+  <p>My feet couldn't reach the floor. My hands could barely reach the levers. But there was something about the iron — being fully in control, being able to move the earth. That was my original love for iron: operating equipment.</p>
+
+  <p>As I got older, I found another passion for iron. But like most pursuits in my life, it took adversity — a setback — to understand it. That setback was a reality check: I was overweight. My nickname as a kid was Doughboy. Cinnamon rolls, bread, any kind of baked good — that was the majority of what I ate.</p>
+
+  <p>In reality, I was fat. I was made fun of and bullied for it, criticized constantly, told I was lazy, not good enough, a disappointment. Never told "I'm proud of you." And maybe all of those things that were said were just the truth. I used to have this dream: walking onto the school bus, looking for a place to sit, and everyone is pointing and laughing — because I'm shirtless. And right when I couldn't take it anymore, my alarm would go off.</p>
+
+  <p>This compounded when I struggled to read and write. Insecure and overweight, I would shake at the thought of a teacher picking me to answer a question. I'd put my head down when a teacher scanned the room for someone to stand up in front of the class. Being shirtless in front of others, or speaking in front of any group, truly terrified me.</p>
+
+  <p>Around 16, drinking became my escape, and it all escalated when my parents got divorced. The pain was unbearable. Already insecure, now I was angry as hell and felt like I couldn't control anything. I didn't know what the hell I was doing in life. The only thing I knew for certain: I could hit the iron and feel better. It was the only thing that gave me any mental and physical peace — even if only temporary. One thing about the iron: it does not discriminate. I began training before school, during school — really any chance I could.</p>
+
+  <p>One afternoon, I was asleep in class when the bell rang. A typical day, saved by the bell. But something felt different. As I hopped in my truck, I cracked open a beer — why? Because that was my normal.</p>
+
+  <p>As I left, I noticed an R&amp;R Pipeline crew working on a gas line in front of Licking Valley High School. I knew that crew — I'd worked there part-time when I could. For no reason at all, as I passed them, something came over me, and I kept repeating in my head:</p>
+
+  <div class="pull">
+    <span class="q">"That's going to be my <span class="red">company</span> one day."</span>
+    <div class="src">An unconscious thought · age 16</div>
+  </div>
+
+  <p>I had no idea why. After that day, I never spoke about that moment for 12 years.</p>
+
+  <p>After high school, I went straight into the workforce at R&amp;R Pipeline — in 2007, for $9 an hour, with a shovel in my hand. I thought: why spend $20,000 to go to college and maybe not survive it, when I could <em>make</em> $20,000 and maybe buy a house in a few years?</p>
+
+  <p>I was right on track to becoming the person everyone said I would be. My reality: I was going nowhere. <strong>Dead or in jail by 21.</strong></p>
+
+  <p>Two years into my journey at R&amp;R Pipeline, I had made no real progress. I was miserable — on the road, living in a hotel room, broke, isolated in an environment of hell. During a layoff one winter, I was at the Old School Gym, exhausted. I was lifting, boxing, and doing jiu-jitsu almost daily.</p>
+
+  <p>With my head in my hands, sitting on a tractor tire, thinking <em>there has to be more to life than this,</em> I heard a familiar voice walking toward me. I looked up, and Cory Gregory said to me:</p>
+
+  <div class="pull">
+    <span class="q">"Man, what the hell are you <span class="red">doing</span> with your life?"</span>
+    <div class="src">Cory Gregory</div>
+  </div>
+
+  <p>That question stopped me in my tracks. I was speechless. I had no idea what to say — which made me realize I wasn't doing a damn thing with my life. Going absolutely nowhere.</p>
+
+  <p>One thing I didn't see then was the foundation I had already built — built by the iron, through running equipment and lifting weights. The Iron Foundation is just that: it's who I am. <strong>I am iron-built.</strong></p>
+
+  <p>I knew a storm was coming. Do I run away like the cow, the coward? Or run toward the storm like a buffalo, and become my own hero? I chose to run toward it and face my reality. That was my breakdown.</p>
+
+  <!-- PHASE 2 -->
+  <div class="chapter">
+    <div class="pn">Phase Two</div>
+    <h2>Building My Infrastructure</h2>
+    <div class="sub">The Bridge</div>
+  </div>
+
+  <p class="dropcap">After I faced my breakdown — the issues, the fears, the challenges — I realized I would have to give up certain things to change. What was I <em>not</em> willing to sacrifice? I knew I had to set a different direction and leave the old me behind. That started the journey of building my infrastructure: first, by building a bridge.</p>
+
+  <p>The journey of a thousand miles starts with the first step. I started focusing on the next certification, studying outside of work hours. I decided to take personal training courses so I could train others on the weekends — flash cards in hand, riding in the truck to and from job sites.</p>
+
+  <p>The night before my test, once again, I was tested. Personal trainer, or pipeliner? The thought of being a weekend personal trainer didn't sit well with my living situation at the time. Faced with no other option, I had to pick between the two. After taking my test and returning home, I chose to continue being a pipeliner. I took the easy way out — I said that I failed the test and was no longer pursuing personal training. The reality: I had passed. I thought a part of me died that day. Fitness was a huge passion, and I felt like my dream to be part of the industry had ended. But I didn't blame anyone else. It was on me.</p>
+
+  <p>I became a different person. My habits, my choices, my environment changed — and guess what? I changed along with it. I traded happy hour with the boys for personal development and walking on a treadmill every night. This was the lonely road. Once again in a familiar place of discomfort, fighting everything in my way, just to pave my own path.</p>
+
+  <p>Through consistency, discipline, lifting, and personal and professional development, I went from a laborer at the bottom to a crew leader in just a couple of years. By 22 or 23, I was in charge of job sites, multiple crews — sometimes 25 to 30 crew members, most of whom had been doing this work longer than I'd been alive. I was constantly reminded of that. But I was hungry, and dreaming of a vision for my life daily. Then I set a new goal:</p>
+
+  <div class="pull">
+    <span class="q">Own R&amp;R Pipeline <span class="red">by 30.</span></span>
+  </div>
+
+  <p>Was I delusional? Maybe. Was everyone right about me, once again? I'd say they were 99% accurate. But the reality was: my peers didn't know the new me. They could only remember the previous version. It didn't matter. Internally, I knew who I was — and externally, the iron had established my foundation. With the physical and mental sides both dialed in, the growth happened fast.</p>
+
+  <p>Like all great dreams, though, a portion always comes with a needed reality check. I realized the likelihood of buying the company solo was far-fetched, to say the least — and if it was possible at all, I'd have to sacrifice everything to make it happen. That led me to realize: I am a partnership person.</p>
+
+  <p>I often reference the power of partnership through the eyes of a draft horse. A single draft horse can pull up to 8,000 pounds, so logic says two would pull 16,000. But in reality, two draft horses working together can pull up to 32,000 pounds — because when two are trained together, they learn to work as a unified team.</p>
+
+  <p>Soon after, my now-business partner, Cody, came back to R&amp;R, and we began chasing the dream together. The bridge had been built. I was a new person, and the old me had been left behind. I had been building my infrastructure. Now I needed to start the buildup.</p>
+
+  <!-- PHASE 3 -->
+  <div class="chapter">
+    <div class="pn">Phase Three</div>
+    <h2>Connecting the Dots</h2>
+    <div class="sub">Iron &amp; Infrastructure · The Buildup</div>
+  </div>
+
+  <p class="dropcap">April 12, 2018 — this was the turning point for the rest of my life. Cody and I sat down with the previous owner and said, "We want to purchase R&amp;R Pipeline." He laughed. Rightfully so. My net worth was $37,000. 37K — you'll see that number on one of my logos. I reference it often, as a reminder.</p>
+
+  <p>On paper, it seemed impossible: a $37K net worth, trying to purchase a near-eight-figure business. Once again, the world was correct about me 99% of the time. But a 1% chance was all I needed. The only person truly involved who believed in us was our attorney, Jim Havens. His belief was profound, and I'm forever grateful for Jim.</p>
+
+  <p>Everything was going according to plan — and then the bottom fell out. The bank we had a letter of intent with dropped us. Stone cold. We hit rock bottom in a matter of seconds. After the call, Jim Havens smiled and said, "Isn't this fun?" In that second, I had never wanted to knock out an old man so badly. But in reality, I embraced the situation, knowing that regardless of the outcome, I would never be in this position again as long as I lived.</p>
+
+  <p>In a split second, I realized: if I can be in a bad mood for no reason, I can be in a good mood for no reason. I reminded myself that pressure was a privilege — and that the 22-year-old me had prayed for this problem. The climb after that moment was brutal. Persistent patience was the driving force, and it's now my life motto:</p>
+
+  <div class="pull">
+    <span class="q">Persistent in the pursuit.<br /><span class="red">Patient</span> with the outcome.</span>
+  </div>
+
+  <p>When we look back at certain events, it's often the unanswered prayers that become our biggest blessings. Thirty years of doubt, insecurity, fighting everything and everyone in my path. Never good enough. The fat kid. Dead or in jail by 21. 99% of the time, the world was right about me. I was going all in — but getting my ass kicked. Twelfth round of the boxing match, ten seconds left, the pressure of the world on my shoulders. Did I have what it takes? Was I going to be the failure I'd been my whole life?</p>
+
+  <p>The funny part about life: <strong>99% isn't 100%.</strong></p>
+
+  <p>On May 24, 2019 — 407 days after that lunch — we closed on the purchase of R&amp;R Pipeline. I was 30 years old, and now the owner of R&amp;R Pipeline. For the first time in my life, I won. That 99% perception from others was now 0% — because for the first time, I was 100% right about the person I had become, and I had undeniable proof.</p>
+
+  <p>Two days after becoming owner, I was gutted. Empty inside, and I had no idea why. It took a while to figure out, but pieces of me were still missing. After a year or so, I realized one important fact: I didn't enjoy the process. I didn't embrace the journey. It wasn't the accomplishment of becoming owner of R&amp;R — in reality, it was the person I had become along the way who was capable of the accomplishment. I had destination disease.</p>
+
+  <div class="pull">
+    <span class="q">Everybody wants the view.<br />Not everybody wants the <span class="red">climb.</span></span>
+  </div>
+
+  <p>In life, we must find joy in the journey, and not have destination disease. If we don't enjoy the climb up our mountain, the view won't be nearly as good.</p>
+
+  <p>Connecting the dots can't be done until life unfolds its meaning and places the dots to be connected. Things started to come full circle one afternoon when I got a phone call — from none other than Cory Gregory. He proposed an opportunity: to become a shareholder of Max Effort Muscle. The irony of that call. <em>Personal trainer or pipeliner</em> — it had been a learning lesson. Had I pursued personal training, I might not have purchased R&amp;R. The missing piece I needed was now in place. I wired money a week later and rejoined the 4 a.m. crew when Cory purchased this building and moved everything here. Not long after, Cory and I helped our good friend and business partner Jason Tomlinson start CrossFit Uprising.</p>
+
+  <p>Being in this environment more often made me realize I needed flexibility in my environment. My dreaming got bigger. My thoughts got more delusional. I was evolving daily.</p>
+
+  <p>After deciding to write a book alongside Tyler Tredway, called <em>Pipeline to Prosperity,</em> I was once again in the line of fire. The book was a good thought, but it didn't fully align with my vision. After a month or two of hearing it from G and Tredway, and getting ready to prep for an interview — it was time. Time to connect all the dots in my life, face my biggest fears, and launch the Iron &amp; Infrastructure Podcast.</p>
+
+  <p>Bringing together my Iron Foundation — which built my personal and professional infrastructure — I was terrified. And quite frankly, I was a horrible podcast host. But just over a year later, and 130 episodes released, just like the gym: I needed a lot of reps.</p>
+
+  <p>Throughout my entire journey, I had a passion that wasn't fully recognized until I became a business owner: I truly cared about helping others. About a year ago, I received some messages asking me to speak at Licking Valley High School, to an aspiring-leaders class. The school that said <em>dead or in jail by 21</em> wanted me to speak. Talk about not seeing it coming. I was humbled, to say the least.</p>
+
+  <p>As I approached the school to talk with the teacher about the curriculum, I had an all-too-familiar feeling in my stomach — the exact same feeling I had at 16, leaving school saying "that's going to be my company one day." Nearly 20 years later. As I met the teacher and walked to the classroom, every memory of school flashed before me. When I sat down, I jolted so hard the teacher asked if I was okay.</p>
+
+  <p>It's often hard to see the forest through the trees when you're struggling through a hard point in life — just like that hopeless 16-year-old kid. What caused me to jolt was profound: nearly 20 years later, I was sitting in the exact same seat I had been asleep in at 16. The same damn spot. When I woke up to that bell as a kid, I distinctly remember looking out the windows, and I'd carried that vivid image in my head for years. Sitting down with the teacher, I was looking out that same window. That distinct memory was now my reality — and for a few seconds, I relived every part of my life, with nothing but joy and gratitude for the journey.</p>
+
+  <!-- CLOSING -->
+  <div class="closing">
+    <p>The dots don't always connect when you're in the middle of the grind. But looking back, you'll see that every rep, every struggle, and every decision was shaping something bigger. The one thing I wish I'd learned earlier: we all have greatness inside of us. Everyone is born with it — yet so few dig deep enough to uncover it.</p>
+
+    <p>Life does not happen <em>to</em> us. We are not victims. Life happens <em>for</em> us. All the adversity you face, all the challenges you carry — don't look at them as detrimental. Embrace them as a way to get better. And even if you have a valid reason to dwell on the pain, I'd ask one simple question: <strong>so what?</strong> Is this the thing that holds you back forever?</p>
+
+    <div class="pull">
+      <span class="q">Life is a <span class="red">mirror,</span><br />not a window.</span>
+    </div>
+
+    <p>Power follows the blame finger. Without pain, there is no progress. So when adversity sets in, point into the mirror, and give yourself the power to control the outcome. Right at the breaking point of pain — three feet from gold, ten seconds left in the twelfth round — there is a breakthrough on the other side. Don't give up. Don't ever give up.</p>
+
+    <p class="big">Iron built my infrastructure.<br />It helped me discover my own <span class="red">greatness.</span></p>
+
+    <div class="signoff"><span class="je">J<em>·</em>E</span> Jacob Emery &nbsp;·&nbsp; Iron &amp; Infrastructure LLC</div>
+  </div>
+
+  <div class="endbar"></div>
+</article>
+
+<footer>Iron &amp; Infrastructure LLC &nbsp;·&nbsp; Jacob Emery, Owner</footer>
+
+<script>
+(async () => {
+  // Prepend so page-supplied @page / break rules (deck-stage's margin:0,
+  // author CSS) keep source-order precedence over the baseline.
+  const baseCss = document.createElement('style');
+  baseCss.textContent = "@media print {\n  @page { margin: 0.5cm; }\n  html, body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }\n  section, article, figure, table { break-inside: avoid; }\n  *, *::before, *::after {\n    animation-delay: -99s !important; animation-duration: .001s !important;\n    animation-iteration-count: 1 !important; animation-fill-mode: both !important;\n    animation-play-state: running !important; transition-duration: 0s !important;\n  }\n}";
+  document.head.prepend(baseCss);
+  if (document.readyState === 'loading') {
+    await new Promise((r) => document.addEventListener('DOMContentLoaded', r, { once: true }));
+  }
+  let ds = document.querySelector('deck-stage');
+  // whenDefined never resolves when nothing registers the element, so only
+  // await it when a <deck-stage> tag exists (and race a timeout regardless).
+  if (ds && !customElements.get('deck-stage')) {
+    try {
+      await Promise.race([
+        customElements.whenDefined('deck-stage'),
+        new Promise((r) => setTimeout(r, 3000)),
+      ]);
+    } catch (e) {}
+    ds = document.querySelector('deck-stage');
+  }
+  // dc-runtime assigns window.DCLogic at init and mounts into #dc-root on
+  // DOMContentLoaded; settle on that subtree so React has rendered before
+  // print(). Non-DC pages fall through to weighing body.
+  const isDc = !ds && 'DCLogic' in window;
+  const settleRoot = ds || (isDc ? document.getElementById('dc-root') : null) || document.body;
+  if (settleRoot) {
+    // Weigh only content children — skip script/style/template so inline
+    // Babel/CSS doesn't register as stable "content" before the framework
+    // has mounted anything.
+    const MEDIA = 'img,svg,canvas,video,picture,iframe,embed,object';
+    const weigh = () => {
+      let text = 0, media = 0;
+      for (const c of settleRoot.children) {
+        const t = c.tagName;
+        if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+        text += (c.textContent || '').trim().length;
+        media += c.querySelectorAll(MEDIA).length + (c.matches(MEDIA) ? 1 : 0);
+      }
+      return text + media * 100;
+    };
+    // "Non-zero and stable" alone is not sufficient to mean rendered: generic
+    // body can carry a static shell while async main content is pending, and
+    // #dc-root can carry the root DC's static text while child refs are still
+    // .sc-placeholder boxes. Gate generic on readyState 'complete', and never
+    // accept stability while a dc-runtime placeholder is present.
+    const isGeneric = settleRoot === document.body;
+    const deadline = Date.now() + 15000;
+    let last = -1, stable = 0;
+    while (Date.now() < deadline) {
+      const n = weigh();
+      const ready =
+        (!isGeneric || document.readyState === 'complete') &&
+        !settleRoot.querySelector('.sc-placeholder');
+      if (n > 0 && n === last && ready) { if (++stable >= 2) break; } else { stable = 0; }
+      last = n;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  }
+  try { await document.fonts.ready; } catch (e) {}
+  // Jump every animation to its end state so print() never captures a slide
+  // mid-entrance. Ordering matters: the 0s-transition style must be live
+  // BEFORE data-deck-active is set so attribute-keyed transitions don't
+  // start a (now-0s) run from the pre-active base.
+  const st = document.createElement('style');
+  st.textContent = '*,*::before,*::after{animation-delay:-99s !important;animation-duration:.001s !important;animation-iteration-count:1 !important;animation-fill-mode:both !important;animation-play-state:running !important;transition-duration:0s !important}';
+  document.head.appendChild(st);
+  for (const d of document.querySelectorAll('deck-stage')) {
+    for (const c of d.children) {
+      const t = c.tagName;
+      if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+      c.setAttribute('data-deck-active', '');
+    }
+  }
+  try {
+    const sweep = () => {
+      for (const a of document.getAnimations()) {
+        try { a.finish(); } catch (e) {
+          try { a.currentTime = (a.effect && a.effect.getComputedTiming().duration) || 0; a.pause(); } catch (e2) {}
+        }
+      }
+    };
+    sweep();
+    await new Promise((r) => requestAnimationFrame(r));
+    sweep();
+    await new Promise((r) => requestAnimationFrame(r));
+  } catch (e) {}
+  setTimeout(() => { try { window.print(); } catch (e) {} }, 200);
+})();
+</script>
+</body>
+</html>
